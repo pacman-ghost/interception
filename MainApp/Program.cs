@@ -19,11 +19,9 @@ namespace MouseInterception
         {
             // initialize
             mBaseDir = Application.StartupPath ;
-#if DEBUG
             string baseDir = System.IO.Path.Combine( mBaseDir , "../../../_TEST_" ) ;
             if ( Directory.Exists( baseDir ) )
                 mBaseDir = baseDir ;
-#endif // DEBUG
 
             // load the debug config
             string fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
