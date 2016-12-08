@@ -13,6 +13,10 @@ namespace MouseInterception
         [STAThread]
         static void Main()
         {
+
+            // FIXME!
+            MouseDll mouseDll = new MouseDll() ;
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault( false );
             Application.Run( new MainForm() );
