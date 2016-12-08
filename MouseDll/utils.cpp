@@ -6,6 +6,34 @@ using namespace std ;
 
 // ---------------------------------------------------------------------
 
+string
+getErrorString( int errorCode )
+{
+    // get the WIN32 error message
+    char buf[ 4*1024 ] = "" ;
+    if ( errorCode != 0 )
+    {
+        DWORD nBytes = FormatMessageA(
+            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_MAX_WIDTH_MASK ,
+            NULL ,
+            errorCode ,
+            MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT) ,
+            buf , sizeof(buf) ,
+            NULL
+        ) ;
+    }
+    if ( buf[0] != '\0' )
+        return buf ;
+
+    // just return the WIN32 error code
+    sprintf_s( buf , sizeof(buf) , "WIN32 ERROR: %08lX" , errorCode ) ;
+    return buf ;
+}
+
+string getLastErrorString() { return getErrorString( GetLastError() ) ; }
+
+// ---------------------------------------------------------------------
+
 wstring 
 fromUtf8( const char* pStr , int len )
 {

@@ -5,12 +5,14 @@ namespace MouseInterception
 {
     class MouseDll
     {
+        // NOTE: The first place DLL's are loaded from are the application directory.
+        private const string DLL_NAME = "mouse.dll" ;
 
-        [DllImport( @"mouse.dll" , CallingConvention=CallingConvention.Cdecl )]
+        [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
         private static extern string open_api() ;
 
-        [DllImport( @"mouse.dll" , CallingConvention=CallingConvention.Cdecl )]
+        [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
         private static extern string close_api() ;
 
