@@ -10,16 +10,16 @@ namespace MouseInterception
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
-        private static extern string open_api() ;
+        private static extern string open_api( int initConsole ) ;
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
         private static extern string close_api() ;
 
-        public MouseDll()
+        public MouseDll( bool initConsole )
         {
             // open the mouse API
-            string errorMsg = open_api() ;
+            string errorMsg = open_api( initConsole ? 1 : 0 ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
         }

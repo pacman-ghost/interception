@@ -1,8 +1,10 @@
 #include <windows.h>
+#include <iostream>
 #include <stdexcept>
 #include <cassert>
 #include "main.hpp"
 #include "utils.hpp"
+
 
 using namespace std ;
 
@@ -10,14 +12,27 @@ using namespace std ;
 
 static HMODULE ghInterceptionDll = NULL ;
 
+static bool gEnableConsole = false ;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+#define LOG_MSG( msg ) \
+{ \
+    if ( gEnableConsole ) \
+        cout << msg << endl ; \
+}
+
 // ---------------------------------------------------------------------
 
 void
-openApi()
+openApi( bool initConsole )
 {
     // check if we are open
     if ( ghInterceptionDll != NULL )
         throw runtime_error( "API is already open." ) ;
+
+    // initialize
+    gEnableConsole = initConsole ;
 
     // load Interception
     wchar_t buf[ _MAX_PATH+1 ] ;
@@ -31,6 +46,7 @@ openApi()
         assert( false ) ;
         wcscpy_s( buf , ARRAY_SIZE(buf) , L"interception.dll" ) ;
     }
+    LOG_MSG( "Loading Interception: " << toUtf8(buf) ) ;
     ghInterceptionDll = LoadLibrary( buf ) ;
     if ( ghInterceptionDll == NULL )
         throw runtime_error( MAKE_STRING( "Can't load Interception: " << getLastErrorString() ) ) ;

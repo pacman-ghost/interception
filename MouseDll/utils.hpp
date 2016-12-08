@@ -11,6 +11,8 @@ extern std::string getErrorString( int errorCode ) ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+extern std::string toUtf8( const wchar_t* pStr , int len=-1 ) ;
+inline std::string toUtf8( const std::wstring& str ) { return toUtf8(str.c_str(),str.length()) ; }
 extern std::wstring fromUtf8( const char* pStr , int len=-1 ) ;
 inline std::wstring fromUtf8( const std::string& str ) { return fromUtf8(str.c_str(),str.length()) ; }
 

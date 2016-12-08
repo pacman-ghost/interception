@@ -1,25 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
+﻿using System ;
+using System.Runtime.InteropServices ;
+using System.Windows.Forms ;
 
 namespace MouseInterception
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+        [DllImport( "kernel32.dll" )]
+        static extern bool AttachConsole( int processId ) ;
+        private const int ATTACH_PARENT_PROCESS = -1 ;
+
         [STAThread]
-        static void Main()
+        static void Main( string[] args )
         {
 
-            // FIXME!
-            MouseDll mouseDll = new MouseDll() ;
-
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault( false );
-            Application.Run( new MainForm() );
+            if ( args.Length > 0 )
+            {
+                // run in console mode
+                AttachConsole( ATTACH_PARENT_PROCESS ) ;
+                System.Console.WriteLine( "\nInitialized the C# console." ) ; // FIXME!
+                MouseDll mouseDll = new MouseDll( true ) ;
+                System.Windows.Forms.SendKeys.SendWait( "{ENTER}" ) ;
+                Application.Exit() ;
+            }
+            else
+            {
+                // run with a GUI
+                MouseDll mouseDll = new MouseDll( false ) ;
+                Application.EnableVisualStyles() ;
+                Application.SetCompatibleTextRenderingDefault( false ) ;
+                Application.Run( new MainForm() ) ;
+            }
         }
     }
 }

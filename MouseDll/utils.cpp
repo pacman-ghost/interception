@@ -34,6 +34,31 @@ string getLastErrorString() { return getErrorString( GetLastError() ) ; }
 
 // ---------------------------------------------------------------------
 
+string
+toUtf8( const wchar_t* pStr , int len )
+{
+    if ( pStr == NULL || len == 0 )
+        return "" ;
+    assert( len > 0 || len == -1 ) ;
+
+    // figure out how many UTF-8 characters we are going to get
+    int nChars = WideCharToMultiByte( CP_UTF8 , 0 , pStr , len , NULL , 0 , NULL , NULL ) ;
+    if ( len == -1 )
+        -- nChars ;
+    if ( nChars == 0 )
+        return "" ;
+
+    // convert the string to UTF-8
+    // nb: slightly naughty to write directly into the string like this
+    string buf ;
+    buf.resize( nChars ) ;
+    WideCharToMultiByte( CP_UTF8 , 0 , pStr , len , const_cast<char*>(buf.c_str()) , nChars , NULL , NULL ) ;
+
+    return buf ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 wstring 
 fromUtf8( const char* pStr , int len )
 {
