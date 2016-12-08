@@ -16,12 +16,18 @@ namespace MouseInterception
         [return: MarshalAs(UnmanagedType.BStr)]
         private static extern string close_api() ;
 
+        [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
+        [return: MarshalAs(UnmanagedType.BStr)]
+        private static extern string reload_config( ref DebugConfig.Settings pDebugSettings ) ;
+
         public MouseDll( bool initConsole )
         {
             // open the mouse API
             string errorMsg = open_api( initConsole ? 1 : 0 ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
+            // initialize
+            reloadConfig() ;
         }
 
         ~MouseDll()
@@ -32,5 +38,13 @@ namespace MouseInterception
                 throw new Exception( errorMsg ) ;
         }
 
+        public void reloadConfig()
+        {
+            // reload the config
+            DebugConfig.Settings settings = Program.debugConfig.settings ;
+            string errorMsg = reload_config( ref settings ) ;
+            if ( errorMsg != null )
+                throw new Exception( errorMsg ) ;
+        }
     }
 }

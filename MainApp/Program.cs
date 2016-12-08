@@ -1,4 +1,5 @@
 ﻿using System ;
+using System.IO ;
 using System.Runtime.InteropServices ;
 using System.Windows.Forms ;
 
@@ -6,6 +7,9 @@ namespace MouseInterception
 {
     static class Program
     {
+        private static string mBaseDir ;
+        private static DebugConfig mDebugConfig ;
+
         [DllImport( "kernel32.dll" )]
         static extern bool AttachConsole( int processId ) ;
         private const int ATTACH_PARENT_PROCESS = -1 ;
@@ -13,6 +17,17 @@ namespace MouseInterception
         [STAThread]
         static void Main( string[] args )
         {
+            // initialize
+            mBaseDir = Application.StartupPath ;
+#if DEBUG
+            string baseDir = System.IO.Path.Combine( mBaseDir , "../../../_TEST_" ) ;
+            if ( Directory.Exists( baseDir ) )
+                mBaseDir = baseDir ;
+#endif // DEBUG
+
+            // load the debug config
+            string fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
+            mDebugConfig = new DebugConfig( fname ) ;
 
             if ( args.Length > 0 )
             {
@@ -32,5 +47,15 @@ namespace MouseInterception
                 Application.Run( new MainForm() ) ;
             }
         }
+
+        public static string getAppRelativePath( string relPath )
+        {
+            // return the full application-relative path
+            string path = System.IO.Path.Combine( mBaseDir , relPath );
+            return System.IO.Path.GetFullPath( path );
+        }
+
+        public static DebugConfig debugConfig { get { return mDebugConfig ; } }
+
     }
 }

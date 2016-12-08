@@ -1,10 +1,10 @@
 #include <windows.h>
 #include <iostream>
+#include <fstream>
 #include <stdexcept>
 #include <cassert>
 #include "main.hpp"
 #include "utils.hpp"
-
 
 using namespace std ;
 
@@ -13,13 +13,21 @@ using namespace std ;
 static HMODULE ghInterceptionDll = NULL ;
 
 static bool gEnableConsole = false ;
+static wstring gLogFilename ;
+static ofstream gLogFile ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 #define LOG_MSG( msg ) \
 { \
-    if ( gEnableConsole ) \
-        cout << msg << endl ; \
+    if ( gEnableConsole || gLogFile.is_open() ) \
+    { \
+        string _buf_ = MAKE_STRING( msg ) ; \
+        if ( gEnableConsole ) \
+            cout << _buf_ << endl ; \
+        if ( gLogFile.is_open() ) \
+            gLogFile << _buf_ << endl ; \
+    } \
 }
 
 // ---------------------------------------------------------------------
@@ -64,4 +72,29 @@ closeApi()
     // close Interception
     FreeLibrary( ghInterceptionDll ) ;
     ghInterceptionDll = NULL ;
+}
+
+// ---------------------------------------------------------------------
+
+void
+reloadConfig( const DebugConfig* pDebugConfig )
+{
+    // validate the parameters
+    if ( pDebugConfig == NULL )
+        throw runtime_error( "Missing DebugConfig." ) ;
+    const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;
+    if ( pLogFilename == NULL )
+        pLogFilename = L"" ;
+
+    // initialize the log file
+    if ( _wcsicmp( gLogFilename.c_str() , pLogFilename ) != 0 )
+    {
+        if ( gLogFile.is_open() )
+            gLogFile.close() ;
+        if ( pLogFilename[0] != L'\0' )
+        {
+            gLogFile.open( pLogFilename ) ;
+            gLogFilename = pLogFilename ;
+        }
+    }
 }

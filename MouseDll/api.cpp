@@ -38,3 +38,20 @@ close_api()
         return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
     }
 }
+
+// ---------------------------------------------------------------------
+
+extern "C" __declspec(dllexport) BSTR
+reload_config( const DebugConfig* pDebugConfig )
+{
+    // reload the config
+    try
+    {
+        reloadConfig( pDebugConfig ) ;
+        return NULL ;
+    }
+    catch ( exception& xcptn )
+    {
+        return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
+    }
+}
