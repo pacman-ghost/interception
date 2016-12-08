@@ -1,0 +1,8 @@
+I asked Francisco if it was possible to only install the mouse driver, and he sent through a bunch of screenshots and .REG files.
+
+It seems that what is required is:
+- C:\windows\system32\drivers\mouse.sys
+- In HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services:
+    A "mouse" sub-key - see "mouse driver key.reg" (but we don't need the Enum section, it seems to get generated automatically).
+- In HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{4d36e96f-e325-11ce-bfc1-08002be10318}:
+    Add "mouse\0" to the start of UpperFilters.
