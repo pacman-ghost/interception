@@ -16,7 +16,7 @@ struct DebugConfig
 
 // ---------------------------------------------------------------------
 
-extern void openApi( bool initConsole ) ;
+extern void openApi( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig , bool initConsole ) ;
 extern void closeApi() ;
 
 extern void reloadConfig( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig ) ;

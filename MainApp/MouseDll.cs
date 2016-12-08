@@ -10,7 +10,9 @@ namespace MouseInterception
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
-        private static extern string open_api( int initConsole ) ;
+        private static extern string open_api(
+            ref AppConfig.Settings pAppSettings , ref DebugConfig.Settings pDebugSettings , int initConsole
+        ) ;
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
@@ -23,11 +25,11 @@ namespace MouseInterception
         public MouseDll( bool initConsole )
         {
             // open the mouse API
-            string errorMsg = open_api( initConsole ? 1 : 0 ) ;
+            AppConfig.Settings appSettings = Program.appConfig.settings ;
+            DebugConfig.Settings debugSettings = Program.debugConfig.settings ;
+            string errorMsg = open_api( ref appSettings , ref debugSettings , initConsole?1:0 ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
-            // initialize
-            reloadConfig() ;
         }
 
         ~MouseDll()

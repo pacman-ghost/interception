@@ -33,7 +33,7 @@ static ofstream gLogFile ;
 // ---------------------------------------------------------------------
 
 void
-openApi( bool initConsole )
+openApi( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig , bool initConsole )
 {
     // check if we are open
     if ( ghInterceptionDll != NULL )
@@ -41,6 +41,7 @@ openApi( bool initConsole )
 
     // initialize
     gEnableConsole = initConsole ;
+    reloadConfig( pAppConfig , pDebugConfig ) ;
 
     // load Interception
     wchar_t buf[ _MAX_PATH+1 ] ;

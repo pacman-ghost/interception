@@ -8,12 +8,12 @@ using namespace std ;
 // ---------------------------------------------------------------------
 
 extern "C" __declspec(dllexport) BSTR
-open_api( int initConsole )
+open_api( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig , int initConsole )
 {
     // open the API
     try
     {
-        openApi( initConsole != 0 ) ;
+        openApi( pAppConfig , pDebugConfig , initConsole != 0 ) ;
         return NULL ;
     }
     catch ( exception& xcptn )
