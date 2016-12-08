@@ -181,11 +181,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dllMain.cpp"
+				RelativePath=".\core.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath=".\dllMain.cpp"
 				>
 			</File>
 			<File
@@ -199,7 +199,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\main.hpp"
+				RelativePath=".\api.hpp"
 				>
 			</File>
 			<File

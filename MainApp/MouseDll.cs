@@ -5,6 +5,8 @@ namespace MouseInterception
 {
     class MouseDll
     {
+        // IMPORTANT! The definitions here must be kept in sync with their C equivalents in api.hpp
+
         // NOTE: The first place DLL's are loaded from are the application directory.
         private const string DLL_NAME = "mouse.dll" ;
 

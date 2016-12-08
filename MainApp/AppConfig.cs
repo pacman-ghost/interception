@@ -7,6 +7,8 @@ namespace MouseInterception
     class AppConfig
     {
 
+        // IMPORTANT! The definitions here must be kept in sync with their C equivalents in api.hpp
+
         [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]
         public struct Settings
         {
