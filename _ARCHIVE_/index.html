@@ -1,0 +1,538 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>
+      
+        Interception - 
+      
+      Francisco Lopes
+    </title>
+    <meta name="description" content="">
+    <meta name="author" content="Francisco Lopes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+
+    <link href="http://www.oblita.com/assets/themes/hooligan/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://www.oblita.com/assets/themes/hooligan/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">    
+    <link rel="stylesheet" type="text/css" href="http://www.oblita.com/assets/themes/hooligan/css-social-buttons/css/zocial.stripped.css">
+    <link href="http://www.oblita.com/assets/themes/hooligan/css/pygments.css" rel="stylesheet" type="text/css" media="all">
+    <link href="http://www.oblita.com/assets/themes/hooligan/css/darkstrap.css" rel="stylesheet" type="text/css" media="all">    
+    <link href="http://www.oblita.com/assets/themes/hooligan/css/style.css?body=1" rel="stylesheet" type="text/css" media="all">
+
+    <link href="http://www.oblita.com/assets/css/main.css" rel="stylesheet">
+    <link href="http://www.oblita.com/assets/css/gruvbox.css" rel="stylesheet">
+
+    
+    <!-- fav and touch icons -->
+  <!-- Update these with your own images
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+  -->
+
+    <!-- MathJax -->
+    <script type="text/javascript"
+        src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        MathJax.Hub.Config({messageStyle: "none"});
+    </script>
+  </head>
+
+  <body>
+    <div class="navbar">
+      <div class="navbar-inner">
+        <div class="container">
+          <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>      
+
+
+          <a class="brand" href="http://www.oblita.com">Francisco Lopes</a>
+
+
+          <div class="nav-collapse">
+            <ul class="nav">
+              
+              
+              
+
+
+  
+    
+      
+      	
+      	<li><a href="http://www.oblita.com/archive.html">Archive</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="http://www.oblita.com/categories.html">Categories</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="http://www.oblita.com/pages.html">Pages</a></li>
+      	
+      
+    
+  
+    
+      
+    
+  
+    
+      
+    
+  
+    
+      
+      	
+      	<li><a href="http://www.oblita.com/tags.html">Tags</a></li>
+      	
+      
+    
+  
+
+
+
+            </ul>
+            <ul class="nav pull-right social visible-desktop">
+              <li class="divider-vertical"></li>
+              
+                <li>
+                  <a href="https://github.com/oblitum" class="zocial github icon" target="_blank">
+                    <span class="hidden-desktop">Github</span>
+                  </a>
+                </li>
+              
+                  
+              
+                <li>
+                  <a href="https://twitter.com/pepper_chico" class="zocial twitter icon" target="_blank">
+                  <span class="hidden-desktop">Twitter</span>
+                  </a>
+                </li>
+                                        
+                         
+                                  
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="content">
+        
+<div class="page-header-wrapper">
+	<div class="page-header">
+  		<h1>Interception </h1>
+  	</div>
+</div>
+
+<div class="row">
+  <div class="span12">
+    
+<h3 id="whats-interception">What’s Interception?</h3>
+
+<p>A programming interface for intercepting input device communication.</p>
+
+<h3 id="what-can-i-do-with-that">What can I do with that?</h3>
+
+<p>Currently, with Interception you are able to intercept and transform input data from keyboard and mouse.
+Support is still Windows only (from Windows XP to Windows 10).</p>
+
+<h3 id="i-can-use-windows-hooks-for-that-so-whats-up">I can use Windows hooks for that, so, what’s up?</h3>
+
+<p>Yes, you can, but…</p>
+
+<ul>
+  <li>You’re not able to identify from which device some event is coming when you connect multiple keyboard/mouse.
+  With generic user-mode hooks you are able to identify that a keyboard/mouse event has arrived, but not from which keyboard/mouse it’s coming.  </li>
+  <li>With Windows Raw Input you can identify but cannot <em>intercept</em> (and then mutate) input.  </li>
+  <li>You can’t intercept CTRL-ALT-DELETE with user-mode hooks, for example, and do other stuff like peering while at the login screen.</li>
+  <li>You can’t hook old DirectInput games.</li>
+</ul>
+
+<h3 id="ok-but-how-do-you-achieve-this">Ok, but, how do you achieve this?</h3>
+
+<p>The Interception API provides a simple interface of communication with kernel-mode components, and those components are powerful.
+They intercept data in a early stage, before it reaches the core of OS input processing.</p>
+
+<h3 id="i-have-a-x64-windows-box-ive-heard-that-it-cannot-load-kernel-mode-components-indiscriminately">I have a x64 Windows box, I’ve heard that it cannot load kernel-mode components indiscriminately.</h3>
+
+<p>Yes, indeed. The Interception core is built upon properly signed drivers, so that’s not a problem!</p>
+
+<h3 id="ok-then-lets-get-to-work">Ok then, let’s get to work.</h3>
+
+<p>First, you must download and extract the <a href="https://github.com/oblitum/Interception/releases/latest">Interception assets</a>
+and then run <code>install-interception</code>.  This tool must be run from an administrator command line (you must run cmd as administrator).
+Just run it without arguments to receive instructions.</p>
+
+<p>Second, you must link against the Interception library, which is provided in the assets, or you may build it from <a href="https://github.com/oblitum/Interception">sources</a>.</p>
+
+<p>Third, you must include interception.h in your applications.</p>
+
+<p>The following sample shows how to intercept the x key and turn it into y:</p>
+
+<pre>
+<span class="Include">#include </span><span class="String">&lt;interception.h&gt;</span>
+<span class="Include">#include </span><span class="String">&quot;utils.h&quot;</span>
+
+<span class="Structure">enum</span> ScanCode
+<span class="lv16c">{</span>
+    SCANCODE_X   <span class="op_lv16">=</span> <span class="Number">0x2D</span><span class="op_lv16">,</span>
+    SCANCODE_Y   <span class="op_lv16">=</span> <span class="Number">0x15</span><span class="op_lv16">,</span>
+    SCANCODE_ESC <span class="op_lv16">=</span> <span class="Number">0x01</span>
+<span class="lv16c">}</span><span class="op_lv0">;</span>
+
+<span class="Type">int</span> main<span class="lv16c">()</span>
+<span class="lv16c">{</span>
+    InterceptionContext context<span class="op_lv16">;</span>
+    InterceptionDevice device<span class="op_lv16">;</span>
+    InterceptionKeyStroke stroke<span class="op_lv16">;</span>
+
+    raise_process_priority<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    context <span class="op_lv16">=</span> interception_create_context<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_keyboard<span class="op_lv15">,</span> INTERCEPTION_FILTER_KEY_DOWN <span class="op_lv15">|</span> INTERCEPTION_FILTER_KEY_UP<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Repeat">while</span><span class="lv15c">(</span>interception_receive<span class="lv14c">(</span>context<span class="op_lv14">,</span> device <span class="op_lv14">=</span> interception_wait<span class="lv13c">(</span>context<span class="lv13c">)</span><span class="op_lv14">,</span> <span class="lv13c">(</span>InterceptionStroke <span class="op_lv13">*</span><span class="lv13c">)</span><span class="op_lv14">&amp;</span>stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span> <span class="op_lv15">&gt;</span> <span class="Number">0</span><span class="lv15c">)</span>
+    <span class="lv15c">{</span>
+        <span class="Conditional">if</span><span class="lv14c">(</span>stroke<span class="op_lv14">.</span>code <span class="op_lv14">==</span> SCANCODE_X<span class="lv14c">)</span> stroke<span class="op_lv15">.</span>code <span class="op_lv15">=</span> SCANCODE_Y<span class="op_lv15">;</span>
+
+        interception_send<span class="lv14c">(</span>context<span class="op_lv14">,</span> device<span class="op_lv14">,</span> <span class="lv13c">(</span>InterceptionStroke <span class="op_lv13">*</span><span class="lv13c">)</span><span class="op_lv14">&amp;</span>stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span><span class="op_lv15">;</span>
+
+        <span class="Conditional">if</span><span class="lv14c">(</span>stroke<span class="op_lv14">.</span>code <span class="op_lv14">==</span> SCANCODE_ESC<span class="lv14c">)</span> <span class="Statement">break</span><span class="op_lv15">;</span>
+    <span class="lv15c">}</span>
+
+    interception_destroy_context<span class="lv15c">(</span>context<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Statement">return</span> <span class="Number">0</span><span class="op_lv16">;</span>
+<span class="lv16c">}</span>
+</pre>
+
+<p>There are some concepts you need to know to use Interception well:</p>
+
+<ul>
+  <li>Contexts<br />
+You need to create a context of communication with the core components, most functions will require it.</li>
+  <li>Filters<br />
+Filters are a way to indicate what kind of events you want to intercept, for example, in the last sample
+we were interested in simple key up’s and key down’s, some special keys would not trigger events through this
+filter, like the DELETE key, because it needs the E0 flag too. If you do not set a filter for at last one
+device, you won’t be notified of any events.</li>
+  <li>Device selection predicate<br />
+The interception_set_filter function has three parameters, the context of communication, a function pointer
+and a desired filter. This second parameter, the function pointer, is a device selection predicate, a function
+that receives a device id (like INTERCEPTION_KEYBOARD(0), INTERCEPTION_KEYBOARD(1), etc) as parameter and returns
+true if the device id passed is one of a device that must be filtered through the chosen filter, or false for the
+devices that are not to be filtered through this filter. 
+So the interception_set_filter works by scanning all possible devices, and using the provided predicate as the
+criteria to know for which devices the provided filter should be applied.</li>
+  <li>Precedence<br />
+There’s an old explanation <a href="https://sites.google.com/a/oblita.com/yorick/hooking-part1">here</a>.</li>
+</ul>
+
+<p>The following sample shows how to invert the vertical mouse axis:</p>
+
+<pre>
+<span class="Include">#include </span><span class="String">&lt;interception.h&gt;</span>
+<span class="Include">#include </span><span class="String">&quot;utils.h&quot;</span>
+
+<span class="Structure">enum</span> ScanCode
+<span class="lv16c">{</span>
+    SCANCODE_ESC <span class="op_lv16">=</span> <span class="Number">0x01</span>
+<span class="lv16c">}</span><span class="op_lv0">;</span>
+
+<span class="Type">int</span> main<span class="lv16c">()</span>
+<span class="lv16c">{</span>
+    InterceptionContext context<span class="op_lv16">;</span>
+    InterceptionDevice device<span class="op_lv16">;</span>
+    InterceptionStroke stroke<span class="op_lv16">;</span>
+
+    raise_process_priority<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    context <span class="op_lv16">=</span> interception_create_context<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_keyboard<span class="op_lv15">,</span> INTERCEPTION_FILTER_KEY_DOWN <span class="op_lv15">|</span> INTERCEPTION_FILTER_KEY_UP<span class="lv15c">)</span><span class="op_lv16">;</span>
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_mouse<span class="op_lv15">,</span> INTERCEPTION_FILTER_MOUSE_MOVE<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Repeat">while</span><span class="lv15c">(</span>interception_receive<span class="lv14c">(</span>context<span class="op_lv14">,</span> device <span class="op_lv14">=</span> interception_wait<span class="lv13c">(</span>context<span class="lv13c">)</span><span class="op_lv14">,</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span> <span class="op_lv15">&gt;</span> <span class="Number">0</span><span class="lv15c">)</span>
+    <span class="lv15c">{</span>
+        <span class="Conditional">if</span><span class="lv14c">(</span>interception_is_mouse<span class="lv13c">(</span>device<span class="lv13c">)</span><span class="lv14c">)</span>
+        <span class="lv14c">{</span>
+            InterceptionMouseStroke <span class="op_lv14">&amp;</span>mstroke <span class="op_lv14">=</span> <span class="op_lv14">*</span><span class="lv13c">(</span>InterceptionMouseStroke <span class="op_lv13">*</span><span class="lv13c">)</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">;</span>
+
+            <span class="Conditional">if</span><span class="lv13c">(</span><span class="op_lv13">!</span><span class="lv12c">(</span>mstroke<span class="op_lv12">.</span>flags <span class="op_lv12">&amp;</span> INTERCEPTION_MOUSE_MOVE_ABSOLUTE<span class="lv12c">)</span><span class="lv13c">)</span> mstroke<span class="op_lv14">.</span>y <span class="op_lv14">*=</span> <span class="op_lv14">-</span><span class="Number">1</span><span class="op_lv14">;</span>
+
+            interception_send<span class="lv13c">(</span>context<span class="op_lv13">,</span> device<span class="op_lv13">,</span> <span class="op_lv13">&amp;</span>stroke<span class="op_lv13">,</span> <span class="Number">1</span><span class="lv13c">)</span><span class="op_lv14">;</span>
+        <span class="lv14c">}</span>
+
+        <span class="Conditional">if</span><span class="lv14c">(</span>interception_is_keyboard<span class="lv13c">(</span>device<span class="lv13c">)</span><span class="lv14c">)</span>
+        <span class="lv14c">{</span>
+            InterceptionKeyStroke <span class="op_lv14">&amp;</span>kstroke <span class="op_lv14">=</span> <span class="op_lv14">*</span><span class="lv13c">(</span>InterceptionKeyStroke <span class="op_lv13">*</span><span class="lv13c">)</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">;</span>
+
+            interception_send<span class="lv13c">(</span>context<span class="op_lv13">,</span> device<span class="op_lv13">,</span> <span class="op_lv13">&amp;</span>stroke<span class="op_lv13">,</span> <span class="Number">1</span><span class="lv13c">)</span><span class="op_lv14">;</span>
+
+            <span class="Conditional">if</span><span class="lv13c">(</span>kstroke<span class="op_lv13">.</span>code <span class="op_lv13">==</span> SCANCODE_ESC<span class="lv13c">)</span> <span class="Statement">break</span><span class="op_lv14">;</span>
+        <span class="lv14c">}</span>
+    <span class="lv15c">}</span>
+
+    interception_destroy_context<span class="lv15c">(</span>context<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Statement">return</span> <span class="Number">0</span><span class="op_lv16">;</span>
+<span class="lv16c">}</span>
+</pre>
+
+<p>The following sample shows how to intercept and block the CTRL-ALT-DEL sequence:</p>
+
+<pre>
+<span class="Include">#include </span><span class="String">&lt;interception.h&gt;</span>
+<span class="Include">#include </span><span class="String">&quot;utils.h&quot;</span>
+
+<span class="Include">#include </span><span class="String">&lt;iostream&gt;</span>
+<span class="Include">#include </span><span class="String">&lt;deque&gt;</span>
+
+<span class="Structure">enum</span> ScanCode
+<span class="lv16c">{</span>
+    SCANCODE_ESC <span class="op_lv16">=</span> <span class="Number">0x01</span>
+<span class="lv16c">}</span><span class="op_lv0">;</span>
+
+InterceptionKeyStroke nothing <span class="op_lv0">=</span> <span class="lv16c">{}</span><span class="op_lv0">;</span>
+InterceptionKeyStroke ctrl_down <span class="op_lv0">=</span> <span class="lv16c">{</span><span class="Number">0x1D</span><span class="op_lv16">,</span> INTERCEPTION_KEY_DOWN<span class="lv16c">}</span><span class="op_lv0">;</span>
+InterceptionKeyStroke alt_down  <span class="op_lv0">=</span> <span class="lv16c">{</span><span class="Number">0x38</span><span class="op_lv16">,</span> INTERCEPTION_KEY_DOWN<span class="lv16c">}</span><span class="op_lv0">;</span>
+InterceptionKeyStroke del_down  <span class="op_lv0">=</span> <span class="lv16c">{</span><span class="Number">0x53</span><span class="op_lv16">,</span> INTERCEPTION_KEY_DOWN <span class="op_lv16">|</span> INTERCEPTION_KEY_E0<span class="lv16c">}</span><span class="op_lv0">;</span>
+
+<span class="Type">bool</span> <span class="Normal">operator</span> <span class="op_lv0">==</span> <span class="lv16c">(</span><span class="StorageClass">const</span> InterceptionKeyStroke <span class="op_lv16">&amp;</span>first<span class="op_lv16">,</span> <span class="StorageClass">const</span> InterceptionKeyStroke <span class="op_lv16">&amp;</span>second<span class="lv16c">)</span>
+<span class="lv16c">{</span>
+    <span class="Statement">return</span> first<span class="op_lv16">.</span>code <span class="op_lv16">==</span> second<span class="op_lv16">.</span>code <span class="op_lv16">&amp;&amp;</span> first<span class="op_lv16">.</span>state <span class="op_lv16">==</span> second<span class="op_lv16">.</span>state<span class="op_lv16">;</span>
+<span class="lv16c">}</span>
+
+<span class="Type">bool</span> <span class="Normal">operator</span> <span class="op_lv0">!=</span> <span class="lv16c">(</span><span class="StorageClass">const</span> InterceptionKeyStroke <span class="op_lv16">&amp;</span>first<span class="op_lv16">,</span> <span class="StorageClass">const</span> InterceptionKeyStroke <span class="op_lv16">&amp;</span>second<span class="lv16c">)</span>
+<span class="lv16c">{</span>
+    <span class="Statement">return</span> <span class="op_lv16">!</span><span class="lv15c">(</span>first <span class="op_lv15">==</span> second<span class="lv15c">)</span><span class="op_lv16">;</span>
+<span class="lv16c">}</span>
+
+<span class="Type">int</span> main<span class="lv16c">()</span>
+<span class="lv16c">{</span>
+    <span class="Statement">using</span> <span class="Structure">namespace</span> std<span class="op_lv16">;</span>
+
+    InterceptionContext context<span class="op_lv16">;</span>
+    InterceptionDevice device<span class="op_lv16">;</span>
+    InterceptionKeyStroke new_stroke<span class="op_lv16">,</span> last_stroke<span class="op_lv16">;</span>
+
+    deque<span class="lv15c">&lt;</span>InterceptionKeyStroke<span class="lv15c">&gt;</span> stroke_sequence<span class="op_lv16">;</span>
+
+    stroke_sequence<span class="op_lv16">.</span>push_back<span class="lv15c">(</span>nothing<span class="lv15c">)</span><span class="op_lv16">;</span>
+    stroke_sequence<span class="op_lv16">.</span>push_back<span class="lv15c">(</span>nothing<span class="lv15c">)</span><span class="op_lv16">;</span>
+    stroke_sequence<span class="op_lv16">.</span>push_back<span class="lv15c">(</span>nothing<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    raise_process_priority<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    context <span class="op_lv16">=</span> interception_create_context<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_keyboard<span class="op_lv15">,</span> INTERCEPTION_FILTER_KEY_ALL<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Repeat">while</span><span class="lv15c">(</span>interception_receive<span class="lv14c">(</span>context<span class="op_lv14">,</span> device <span class="op_lv14">=</span> interception_wait<span class="lv13c">(</span>context<span class="lv13c">)</span><span class="op_lv14">,</span> <span class="lv13c">(</span>InterceptionStroke <span class="op_lv13">*</span><span class="lv13c">)</span><span class="op_lv14">&amp;</span>new_stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span> <span class="op_lv15">&gt;</span> <span class="Number">0</span><span class="lv15c">)</span>
+    <span class="lv15c">{</span>
+        <span class="Conditional">if</span><span class="lv14c">(</span>new_stroke <span class="op_lv14">!=</span> last_stroke<span class="lv14c">)</span>
+        <span class="lv14c">{</span>
+            stroke_sequence<span class="op_lv14">.</span>pop_front<span class="lv13c">()</span><span class="op_lv14">;</span>
+            stroke_sequence<span class="op_lv14">.</span>push_back<span class="lv13c">(</span>new_stroke<span class="lv13c">)</span><span class="op_lv14">;</span>
+        <span class="lv14c">}</span>
+
+        <span class="Conditional">if</span><span class="lv14c">(</span>stroke_sequence<span class="lv13c">[</span><span class="Number">0</span><span class="lv13c">]</span> <span class="op_lv14">==</span> ctrl_down <span class="op_lv14">&amp;&amp;</span> stroke_sequence<span class="lv13c">[</span><span class="Number">1</span><span class="lv13c">]</span> <span class="op_lv14">==</span> alt_down <span class="op_lv14">&amp;&amp;</span> stroke_sequence<span class="lv13c">[</span><span class="Number">2</span><span class="lv13c">]</span> <span class="op_lv14">==</span> del_down<span class="lv14c">)</span>
+            cout <span class="op_lv15">&lt;&lt;</span> <span class="String">&quot;ctrl-alt-del pressed&quot;</span> <span class="op_lv15">&lt;&lt;</span> endl<span class="op_lv15">;</span>
+        <span class="Conditional">else</span> <span class="Conditional">if</span><span class="lv14c">(</span>stroke_sequence<span class="lv13c">[</span><span class="Number">0</span><span class="lv13c">]</span> <span class="op_lv14">==</span> alt_down <span class="op_lv14">&amp;&amp;</span> stroke_sequence<span class="lv13c">[</span><span class="Number">1</span><span class="lv13c">]</span> <span class="op_lv14">==</span> ctrl_down <span class="op_lv14">&amp;&amp;</span> stroke_sequence<span class="lv13c">[</span><span class="Number">2</span><span class="lv13c">]</span> <span class="op_lv14">==</span> del_down<span class="lv14c">)</span>
+            cout <span class="op_lv15">&lt;&lt;</span> <span class="String">&quot;alt-ctrl-del pressed&quot;</span> <span class="op_lv15">&lt;&lt;</span> endl<span class="op_lv15">;</span>
+        <span class="Conditional">else</span>
+            interception_send<span class="lv14c">(</span>context<span class="op_lv14">,</span> device<span class="op_lv14">,</span> <span class="lv13c">(</span>InterceptionStroke <span class="op_lv13">*</span><span class="lv13c">)</span><span class="op_lv14">&amp;</span>new_stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span><span class="op_lv15">;</span>
+
+        <span class="Conditional">if</span><span class="lv14c">(</span>new_stroke<span class="op_lv14">.</span>code <span class="op_lv14">==</span> SCANCODE_ESC<span class="lv14c">)</span> <span class="Statement">break</span><span class="op_lv15">;</span>
+
+        last_stroke <span class="op_lv15">=</span> new_stroke<span class="op_lv15">;</span>
+    <span class="lv15c">}</span>
+
+    interception_destroy_context<span class="lv15c">(</span>context<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Statement">return</span> <span class="Number">0</span><span class="op_lv16">;</span>
+<span class="lv16c">}</span>
+</pre>
+
+<p>The following sample identify multiple mice through left clicking (worked well for my magic mouse and touch pad):</p>
+
+<pre>
+<span class="Include">#include </span><span class="String">&lt;interception.h&gt;</span>
+<span class="Include">#include </span><span class="String">&quot;utils.h&quot;</span>
+
+<span class="Include">#include </span><span class="String">&lt;iostream&gt;</span>
+
+<span class="Structure">enum</span> ScanCode
+<span class="lv16c">{</span>
+    SCANCODE_ESC <span class="op_lv16">=</span> <span class="Number">0x01</span>
+<span class="lv16c">}</span><span class="op_lv0">;</span>
+
+<span class="Type">int</span> main<span class="lv16c">()</span>
+<span class="lv16c">{</span>
+    <span class="Statement">using</span> <span class="Structure">namespace</span> std<span class="op_lv16">;</span>
+
+    InterceptionContext context<span class="op_lv16">;</span>
+    InterceptionDevice device<span class="op_lv16">;</span>
+    InterceptionStroke stroke<span class="op_lv16">;</span>
+
+    raise_process_priority<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    context <span class="op_lv16">=</span> interception_create_context<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_keyboard<span class="op_lv15">,</span> INTERCEPTION_FILTER_KEY_DOWN <span class="op_lv15">|</span> INTERCEPTION_FILTER_KEY_UP<span class="lv15c">)</span><span class="op_lv16">;</span>
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_mouse<span class="op_lv15">,</span> INTERCEPTION_FILTER_MOUSE_LEFT_BUTTON_DOWN<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Repeat">while</span><span class="lv15c">(</span>interception_receive<span class="lv14c">(</span>context<span class="op_lv14">,</span> device <span class="op_lv14">=</span> interception_wait<span class="lv13c">(</span>context<span class="lv13c">)</span><span class="op_lv14">,</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span> <span class="op_lv15">&gt;</span> <span class="Number">0</span><span class="lv15c">)</span>
+    <span class="lv15c">{</span>
+        <span class="Conditional">if</span><span class="lv14c">(</span>interception_is_keyboard<span class="lv13c">(</span>device<span class="lv13c">)</span><span class="lv14c">)</span>
+        <span class="lv14c">{</span>
+            InterceptionKeyStroke <span class="op_lv14">&amp;</span>keystroke <span class="op_lv14">=</span> <span class="op_lv14">*</span><span class="lv13c">(</span>InterceptionKeyStroke <span class="op_lv13">*</span><span class="lv13c">)</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">;</span>
+
+            <span class="Conditional">if</span><span class="lv13c">(</span>keystroke<span class="op_lv13">.</span>code <span class="op_lv13">==</span> SCANCODE_ESC<span class="lv13c">)</span> <span class="Statement">break</span><span class="op_lv14">;</span>
+        <span class="lv14c">}</span>
+
+        <span class="Conditional">if</span><span class="lv14c">(</span>interception_is_mouse<span class="lv13c">(</span>device<span class="lv13c">)</span><span class="lv14c">)</span>
+        <span class="lv14c">{</span>
+            InterceptionMouseStroke <span class="op_lv14">&amp;</span>mousestroke <span class="op_lv14">=</span> <span class="op_lv14">*</span><span class="lv13c">(</span>InterceptionMouseStroke <span class="op_lv13">*</span><span class="lv13c">)</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">;</span>
+
+            cout <span class="op_lv14">&lt;&lt;</span> <span class="String">&quot;INTERCEPTION_MOUSE(&quot;</span> <span class="op_lv14">&lt;&lt;</span> device <span class="op_lv14">-</span> INTERCEPTION_MOUSE<span class="lv13c">(</span><span class="Number">0</span><span class="lv13c">)</span> <span class="op_lv14">&lt;&lt;</span> <span class="String">&quot;)&quot;</span> <span class="op_lv14">&lt;&lt;</span> endl<span class="op_lv14">;</span>
+        <span class="lv14c">}</span>
+
+        interception_send<span class="lv14c">(</span>context<span class="op_lv14">,</span> device<span class="op_lv14">,</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span><span class="op_lv15">;</span>
+    <span class="lv15c">}</span>
+
+    interception_destroy_context<span class="lv15c">(</span>context<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Statement">return</span> <span class="Number">0</span><span class="op_lv16">;</span>
+<span class="lv16c">}</span>
+</pre>
+
+<p>As you can see interception_is_keyboard and interception_is_mouse are convenience device selection predicates, but you can implement your own.</p>
+
+<p>The following sample allows one to query for a device’s “hardware id”, which may help on disambiguation of device input.<br />
+Just remember this hardware id’s are not required to be unique, but mostly will when you have at last two different device models.</p>
+
+<pre>
+<span class="Include">#include </span><span class="String">&lt;interception.h&gt;</span>
+<span class="Include">#include </span><span class="String">&quot;utils.h&quot;</span>
+
+<span class="Include">#include </span><span class="String">&lt;iostream&gt;</span>
+
+<span class="Structure">enum</span> ScanCode
+<span class="lv16c">{</span>
+    SCANCODE_ESC <span class="op_lv16">=</span> <span class="Number">0x01</span>
+<span class="lv16c">}</span><span class="op_lv0">;</span>
+
+<span class="Type">int</span> main<span class="lv16c">()</span>
+<span class="lv16c">{</span>
+    <span class="Statement">using</span> <span class="Structure">namespace</span> std<span class="op_lv16">;</span>
+
+    InterceptionContext context<span class="op_lv16">;</span>
+    InterceptionDevice device<span class="op_lv16">;</span>
+    InterceptionStroke stroke<span class="op_lv16">;</span>
+
+    <span class="Type">wchar_t</span> hardware_id<span class="lv15c">[</span><span class="Number">500</span><span class="lv15c">]</span><span class="op_lv16">;</span>
+
+    raise_process_priority<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    context <span class="op_lv16">=</span> interception_create_context<span class="lv15c">()</span><span class="op_lv16">;</span>
+
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_keyboard<span class="op_lv15">,</span> INTERCEPTION_FILTER_KEY_DOWN <span class="op_lv15">|</span> INTERCEPTION_FILTER_KEY_UP<span class="lv15c">)</span><span class="op_lv16">;</span>
+    interception_set_filter<span class="lv15c">(</span>context<span class="op_lv15">,</span> interception_is_mouse<span class="op_lv15">,</span> INTERCEPTION_FILTER_MOUSE_LEFT_BUTTON_DOWN<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Repeat">while</span><span class="lv15c">(</span>interception_receive<span class="lv14c">(</span>context<span class="op_lv14">,</span> device <span class="op_lv14">=</span> interception_wait<span class="lv13c">(</span>context<span class="lv13c">)</span><span class="op_lv14">,</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span> <span class="op_lv15">&gt;</span> <span class="Number">0</span><span class="lv15c">)</span>
+    <span class="lv15c">{</span>
+        <span class="Conditional">if</span><span class="lv14c">(</span>interception_is_keyboard<span class="lv13c">(</span>device<span class="lv13c">)</span><span class="lv14c">)</span>
+        <span class="lv14c">{</span>
+            InterceptionKeyStroke <span class="op_lv14">&amp;</span>keystroke <span class="op_lv14">=</span> <span class="op_lv14">*</span><span class="lv13c">(</span>InterceptionKeyStroke <span class="op_lv13">*</span><span class="lv13c">)</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">;</span>
+
+            <span class="Conditional">if</span><span class="lv13c">(</span>keystroke<span class="op_lv13">.</span>code <span class="op_lv13">==</span> SCANCODE_ESC<span class="lv13c">)</span> <span class="Statement">break</span><span class="op_lv14">;</span>
+        <span class="lv14c">}</span>
+
+        <span class="Type">size_t</span> length <span class="op_lv15">=</span> interception_get_hardware_id<span class="lv14c">(</span>context<span class="op_lv14">,</span> device<span class="op_lv14">,</span> hardware_id<span class="op_lv14">,</span> <span class="Normal">sizeof</span><span class="lv13c">(</span>hardware_id<span class="lv13c">)</span><span class="lv14c">)</span><span class="op_lv15">;</span>
+
+        <span class="Conditional">if</span><span class="lv14c">(</span>length <span class="op_lv14">&gt;</span> <span class="Number">0</span> <span class="op_lv14">&amp;&amp;</span> length <span class="op_lv14">&lt;</span> <span class="Normal">sizeof</span><span class="lv13c">(</span>hardware_id<span class="lv13c">)</span><span class="lv14c">)</span>
+            wcout <span class="op_lv15">&lt;&lt;</span> hardware_id <span class="op_lv15">&lt;&lt;</span> endl<span class="op_lv15">;</span>
+
+        interception_send<span class="lv14c">(</span>context<span class="op_lv14">,</span> device<span class="op_lv14">,</span> <span class="op_lv14">&amp;</span>stroke<span class="op_lv14">,</span> <span class="Number">1</span><span class="lv14c">)</span><span class="op_lv15">;</span>
+    <span class="lv15c">}</span>
+
+    interception_destroy_context<span class="lv15c">(</span>context<span class="lv15c">)</span><span class="op_lv16">;</span>
+
+    <span class="Statement">return</span> <span class="Number">0</span><span class="op_lv16">;</span>
+<span class="lv16c">}</span>
+</pre>
+
+  </div>
+</div>
+
+
+      </div>
+
+      <footer>
+        <p>&copy; 2015 Francisco Lopes
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://github.com/dhulihan/hooligan" target="_blank">The Hooligan Theme</a>
+        </p>
+      </footer>
+    </div> <!-- /container -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="http://www.oblita.com/assets/themes/hooligan/js/jquery.min.js"><\/script>')</script>
+    <script src="http://www.oblita.com/assets/themes/hooligan/bootstrap/js/bootstrap.min.js"></script>
+
+    
+
+
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-6791370-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+
+
+
+  </body>
+</html>
+

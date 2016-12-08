@@ -1,0 +1,119 @@
+pre
+{
+    font-family: 'consolas', 'Inconsolata', 'Anonymous Pro', 'Ubuntu Mono', monospace;
+    font-size: 10pt;
+    -webkit-font-smoothing: antialiased;
+    color: #ebdbb2;
+    text-shadow: none;
+}
+
+pre .Normal             { color: #ebdbb2    ; background-color: transparent;                             }
+pre .CursorLine         { color: transparent; background-color: #3c3836;                                 }
+pre .CursorColumn       { color: transparent; background-color: #3c3836;                                 }
+pre .MatchParen         { color: transparent; background-color: #665c54    ; font-weight: bold;          }
+pre .ColorColumn        { color: transparent; background-color: #3c3836;                                 }
+pre .Conceal            { color: #83a598    ; background-color: transparent;                             }
+pre .CursorLineNr       { color: #fabd2f    ; background-color: #3c3836;                                 }
+pre .NonText            { color: #504945;                                                                }
+pre .SpecialKey         { color: #504945;                                                                }
+pre .Search             { color: #282828    ; background-color: #fabd2f;                                 }
+pre .IncSearch          { color: #282828    ; background-color: #fabd2f;                                 }
+pre .Underlined         { color: #83a598    ; background-color: transparent; text-decoration: underline; }
+pre .StatusLine         { color: #282828    ; background-color: #7c6f64    ; font-weight: bold;          }
+pre .StatusLineNC       { color: #a89984    ; background-color: #504945    ; font-weight: bold;          }
+pre .VertSplit          { color: #a89984    ; background-color: #504945;                                 }
+pre .WildMenu           { color: #83a598    ; background-color: #504945    ; font-weight: bold;          }
+pre .Directory          { color: #b8bb26    ; background-color: transparent; font-weight: bold;          }
+pre .Title              { color: #b8bb26    ; background-color: transparent; font-weight: bold;          }
+pre .MoreMsg            { color: #fabd2f    ; background-color: transparent; font-weight: bold;          }
+pre .ModeMsg            { color: #fabd2f    ; background-color: transparent; font-weight: bold;          }
+pre .Question           { color: #fe8019    ; background-color: transparent; font-weight: bold;          }
+pre .WarningMsg         { color: #fb4934    ; background-color: transparent; font-weight: bold;          }
+pre .LineNr             { color: #7c6f64;                                                                }
+pre .Folded             { color: #928374    ; background-color: #3c3836    ; font-style: italic;         }
+pre .FoldColumn         { color: #928374    ; background-color: #3c3836;                                 }
+pre .Special            { color: #fe8019;                                                                }
+pre .Comment            { color: #928374    ; background-color: transparent; font-style: italic;         }
+pre .Todo               { color: #ebdbb2    ; background-color: transparent; font-weight: bold;          }
+pre .Statement          { color: #fb4934;                                                                }
+pre .Conditional        { color: #fb4934;                                                                }
+pre .Repeat             { color: #fb4934;                                                                }
+pre .Label              { color: #fb4934;                                                                }
+pre .Exception          { color: #fb4934;                                                                }
+pre .Keyword            { color: #fb4934;                                                                }
+pre .Identifier         { color: #83a598;                                                                }
+pre .Function           { color: #b8bb26    ; background-color: transparent; font-weight: bold;          }
+pre .PreProc            { color: #8ec07c;                                                                }
+pre .Include            { color: #8ec07c;                                                                }
+pre .Define             { color: #8ec07c;                                                                }
+pre .Macro              { color: #8ec07c;                                                                }
+pre .PreCondit          { color: #8ec07c;                                                                }
+pre .Constant           { color: #d3869b;                                                                }
+pre .Character          { color: #d3869b;                                                                }
+pre .String             { color: #b8bb26;                                                                }
+pre .Boolean            { color: #d3869b;                                                                }
+pre .Number             { color: #d3869b;                                                                }
+pre .Float              { color: #d3869b;                                                                }
+pre .Type               { color: #fabd2f;                                                                }
+pre .StorageClass       { color: #fe8019;                                                                }
+pre .Structure          { color: #8ec07c;                                                                }
+pre .Typedef            { color: #fabd2f;                                                                }
+pre .Pmenu              { color: #ebdbb2    ; background-color: #504945;                                 }
+pre .PmenuSel           { color: #504945    ; background-color: #83a598    ; font-weight: bold;          }
+pre .PmenuSbar          { color: transparent; background-color: #504945;                                 }
+pre .PmenuThumb         { color: transparent; background-color: #7c6f64;                                 }
+pre .DiffDelete         { color: #282828    ; background-color: #fb4934;                                 }
+pre .DiffAdd            { color: #282828    ; background-color: #b8bb26;                                 }
+pre .DiffChange         { color: #282828    ; background-color: #8ec07c;                                 }
+pre .DiffText           { color: #282828    ; background-color: #fabd2f;                                 }
+pre .diffAdded          { color: #b8bb26;                                                                }
+pre .diffRemoved        { color: #fb4934;                                                                }
+pre .diffChanged        { color: #8ec07c;                                                                }
+pre .diffFile           { color: #fe8019;                                                                }
+pre .diffNewFile        { color: #fabd2f;                                                                }
+pre .diffLine           { color: #83a598;                                                                }
+pre .htmlTag            { color: #83a598;                                                                }
+pre .htmlEndTag         { color: #83a598;                                                                }
+pre .htmlTagName        { color: #8ec07c    ; background-color: #          ; font-weight: bold;          }
+pre .htmlArg            { color: #8ec07c;                                                                }
+pre .htmlScriptTag      { color: #d3869b;                                                                }
+pre .htmlTagN           { color: #ebdbb2;                                                                }
+pre .htmlSpecialTagName { color: #8ec07c    ; background-color: #          ; font-weight: bold;          }
+pre .htmlLink           { color: #a89984    ; background-color: #          ; text-decoration: underline; }
+pre .htmlSpecialChar    { color: #fe8019;                                                                }
+pre .vimCommentTitle    { color: #a89984    ; background-color: #          ; font-weight: bold         ; font-style: italic; }
+
+pre .lv1c    { color: #d65d0e; }
+pre .lv2c    { color: #cc241d; }
+pre .lv3c    { color: #b16286; }
+pre .lv4c    { color: #458588; }
+pre .lv5c    { color: #d65d0e; }
+pre .lv6c    { color: #cc241d; }
+pre .lv7c    { color: #b16286; }
+pre .lv8c    { color: #458588; }
+pre .lv9c    { color: #d65d0e; }
+pre .lv10c   { color: #cc241d; }
+pre .lv11c   { color: #b16286; }
+pre .lv12c   { color: #458588; }
+pre .lv13c   { color: #d65d0e; }
+pre .lv14c   { color: #cc241d; }
+pre .lv15c   { color: #b16286; }
+pre .lv16c   { color: #458588; }
+
+pre .op_lv0  { color: #d65d0e; }
+pre .op_lv1  { color: #d65d0e; }
+pre .op_lv2  { color: #cc241d; }
+pre .op_lv3  { color: #b16286; }
+pre .op_lv4  { color: #458588; }
+pre .op_lv5  { color: #d65d0e; }
+pre .op_lv6  { color: #cc241d; }
+pre .op_lv7  { color: #b16286; }
+pre .op_lv8  { color: #458588; }
+pre .op_lv9  { color: #d65d0e; }
+pre .op_lv10 { color: #cc241d; }
+pre .op_lv11 { color: #b16286; }
+pre .op_lv12 { color: #458588; }
+pre .op_lv13 { color: #d65d0e; }
+pre .op_lv14 { color: #cc241d; }
+pre .op_lv15 { color: #b16286; }
+pre .op_lv16 { color: #458588; }

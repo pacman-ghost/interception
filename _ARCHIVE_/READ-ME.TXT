@@ -1,0 +1,4 @@
+http://www.oblita.com/interception.html
+https://github.com/oblitum/Interception
+
+NOTE: Testing in a VM might not work properly since VMware is doing funky stuff with the mouse/keyboard as well :-/
