@@ -77,9 +77,11 @@ closeApi()
 // ---------------------------------------------------------------------
 
 void
-reloadConfig( const DebugConfig* pDebugConfig )
+reloadConfig( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig )
 {
     // validate the parameters
+    if ( pAppConfig == NULL )
+        throw runtime_error( "Missing AppConfig." ) ;
     if ( pDebugConfig == NULL )
         throw runtime_error( "Missing DebugConfig." ) ;
     const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;

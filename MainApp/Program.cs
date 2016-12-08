@@ -8,6 +8,7 @@ namespace MouseInterception
     static class Program
     {
         private static string mBaseDir ;
+        private static AppConfig mAppConfig ;
         private static DebugConfig mDebugConfig ;
 
         [DllImport( "kernel32.dll" )]
@@ -23,8 +24,12 @@ namespace MouseInterception
             if ( Directory.Exists( baseDir ) )
                 mBaseDir = baseDir ;
 
+            // load the app config
+            string fname = getAppRelativePath( "config.xml" ) ; // FIXME! this s.b. in the user's AppData folder
+            mAppConfig = new AppConfig( fname ) ;
+
             // load the debug config
-            string fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
+            fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
             mDebugConfig = new DebugConfig( fname ) ;
 
             if ( args.Length > 0 )
@@ -53,6 +58,7 @@ namespace MouseInterception
             return System.IO.Path.GetFullPath( path );
         }
 
+        public static AppConfig appConfig { get { return mAppConfig ; } }
         public static DebugConfig debugConfig { get { return mDebugConfig ; } }
 
     }

@@ -18,7 +18,7 @@ namespace MouseInterception
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
-        private static extern string reload_config( ref DebugConfig.Settings pDebugSettings ) ;
+        private static extern string reload_config( ref AppConfig.Settings pAppSettings , ref DebugConfig.Settings pDebugSettings ) ;
 
         public MouseDll( bool initConsole )
         {
@@ -41,8 +41,9 @@ namespace MouseInterception
         public void reloadConfig()
         {
             // reload the config
-            DebugConfig.Settings settings = Program.debugConfig.settings ;
-            string errorMsg = reload_config( ref settings ) ;
+            AppConfig.Settings appSettings = Program.appConfig.settings ;
+            DebugConfig.Settings debugSettings = Program.debugConfig.settings ;
+            string errorMsg = reload_config( ref appSettings , ref debugSettings ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
         }

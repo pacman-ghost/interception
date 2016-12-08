@@ -42,12 +42,12 @@ close_api()
 // ---------------------------------------------------------------------
 
 extern "C" __declspec(dllexport) BSTR
-reload_config( const DebugConfig* pDebugConfig )
+reload_config( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig )
 {
     // reload the config
     try
     {
-        reloadConfig( pDebugConfig ) ;
+        reloadConfig( pAppConfig , pDebugConfig ) ;
         return NULL ;
     }
     catch ( exception& xcptn )
