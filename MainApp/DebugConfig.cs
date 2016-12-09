@@ -10,18 +10,18 @@ namespace MouseInterception
         // IMPORTANT! The definitions here must be kept in sync with their C equivalents in api.hpp
 
         [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]
-        public struct Settings
+        public struct ApiSettings
         {
             public string mLogFilename ;
         }
 
-        private Settings mSettings ;
-        public Settings settings { get { return mSettings ; } }
+        private ApiSettings mSettings ;
+        public ApiSettings settings { get { return mSettings ; } }
 
         public DebugConfig( string fname )
         {
             // load the DebugConfig
-            mSettings = new Settings() ;
+            mSettings = new ApiSettings() ;
             if ( ! File.Exists( fname ) )
                 return ;
             XmlReaderSettings xmlReaderSettings = new XmlReaderSettings() ;

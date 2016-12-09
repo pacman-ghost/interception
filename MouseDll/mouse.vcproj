@@ -185,6 +185,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\device.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dllMain.cpp"
 				>
 			</File>
@@ -200,6 +204,10 @@
 			>
 			<File
 				RelativePath=".\api.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\device.hpp"
 				>
 			</File>
 			<File

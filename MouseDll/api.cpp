@@ -8,12 +8,17 @@ using namespace std ;
 // ---------------------------------------------------------------------
 
 extern "C" __declspec(dllexport) BSTR
-open_api( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig , int initConsole )
+open_api(
+    const ApiAppConfig* pAppConfig ,
+    const ApiDevice* pDevices , int nDevices ,
+    const ApiDebugConfig* pDebugConfig ,
+    int initConsole
+)
 {
     // open the API
     try
     {
-        openApi( pAppConfig , pDebugConfig , initConsole != 0 ) ;
+        openApi( pAppConfig , pDevices , nDevices , pDebugConfig , initConsole != 0 ) ;
         return NULL ;
     }
     catch ( exception& xcptn )
@@ -42,12 +47,16 @@ close_api()
 // ---------------------------------------------------------------------
 
 extern "C" __declspec(dllexport) BSTR
-reload_config( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig )
+reload_config(
+    const ApiAppConfig* pAppConfig ,
+    const ApiDevice* pDevices , int nDevices ,
+    const ApiDebugConfig* pDebugConfig
+)
 {
     // reload the config
     try
     {
-        reloadConfig( pAppConfig , pDebugConfig ) ;
+        reloadConfig( pAppConfig , pDevices , nDevices , pDebugConfig ) ;
         return NULL ;
     }
     catch ( exception& xcptn )

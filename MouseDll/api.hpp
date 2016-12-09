@@ -3,15 +3,24 @@
 
 // ---------------------------------------------------------------------
 
-// IMPORTANT! The definitions here must be kept in sync with their C# equivalents in App/DebugConfig.cs.
+// IMPORTANT! The definitions here must be kept in sync with their C# equivalents in App/ApiDebugConfig.cs.
 
-struct AppConfig
+struct ApiAppConfig
 {
+} ;
+
+struct ApiDevice
+{
+    int mDeviceId ;
+    const wchar_t* mpHID ;
+    int mDeviceNumber ;
+    const wchar_t* mpDisplayName ;
+    bool mIsEnabled ;
 } ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-struct DebugConfig
+struct ApiDebugConfig
 {
     const wchar_t* mpLogFilename ;
 } ;
@@ -20,10 +29,19 @@ struct DebugConfig
 
 // IMPORTANT! The definitions here must be kept in sync with their C# equivalents in MouseDll.cs.
 
-extern void openApi( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig , bool initConsole ) ;
+extern void openApi( 
+    const ApiAppConfig* pAppConfig , 
+    const ApiDevice* pDevices , int nDevices ,
+    const ApiDebugConfig* pDebugConfig ,
+    bool initConsole
+) ;
 extern void closeApi() ;
 
-extern void reloadConfig( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig ) ;
+extern void reloadConfig(
+    const ApiAppConfig* pAppConfig , 
+    const ApiDevice* pDevices , int nDevices ,
+    const ApiDebugConfig* pDebugConfig
+) ;
 
 // ---------------------------------------------------------------------
 

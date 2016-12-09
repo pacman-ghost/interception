@@ -3,6 +3,9 @@
 #include <fstream>
 #include <stdexcept>
 #include <cassert>
+#include <map>
+
+#include "device.hpp"
 #include "api.hpp"
 #include "utils.hpp"
 
@@ -11,6 +14,13 @@ using namespace std ;
 // --- LOCAL DATA ------------------------------------------------------
 
 static HMODULE ghInterceptionDll = NULL ;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+typedef map< int , Device > DeviceTable ;
+static DeviceTable gDeviceTable ;
+
+// --- LOCAL DATA ------------------------------------------------------
 
 static bool gEnableConsole = false ;
 static wstring gLogFilename ;
@@ -33,7 +43,12 @@ static ofstream gLogFile ;
 // ---------------------------------------------------------------------
 
 void
-openApi( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig , bool initConsole )
+openApi(
+    const ApiAppConfig* pAppConfig ,
+    const ApiDevice* pDevices , int nDevices ,
+    const ApiDebugConfig* pDebugConfig ,
+    bool initConsole
+)
 {
     // check if we are open
     if ( ghInterceptionDll != NULL )
@@ -41,7 +56,7 @@ openApi( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig , bool in
 
     // initialize
     gEnableConsole = initConsole ;
-    reloadConfig( pAppConfig , pDebugConfig ) ;
+    reloadConfig( pAppConfig , pDevices , nDevices , pDebugConfig ) ;
 
     // load Interception
     wchar_t buf[ _MAX_PATH+1 ] ;
@@ -78,11 +93,19 @@ closeApi()
 // ---------------------------------------------------------------------
 
 void
-reloadConfig( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig )
+reloadConfig(
+    const ApiAppConfig* pAppConfig ,
+    const ApiDevice* pDevices , int nDevices ,
+    const ApiDebugConfig* pDebugConfig
+)
 {
     // validate the parameters
     if ( pAppConfig == NULL )
         throw runtime_error( "Missing AppConfig." ) ;
+    if ( pDevices == NULL )
+        throw runtime_error( "Missing Device's." ) ;
+    if ( nDevices < 0 )
+        throw runtime_error( "Invalid device count." ) ;
     if ( pDebugConfig == NULL )
         throw runtime_error( "Missing DebugConfig." ) ;
     const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;
@@ -100,4 +123,17 @@ reloadConfig( const AppConfig* pAppConfig , const DebugConfig* pDebugConfig )
             gLogFilename = pLogFilename ;
         }
     }
+
+    // load the Device's
+    gDeviceTable.clear() ;
+    for ( int i=0 ; i < nDevices ; ++i )
+    {
+        const ApiDevice* pDevice = pDevices+i ;
+        gDeviceTable[ pDevice->mDeviceId ] = Device( pDevice ) ;
+    }
+#if 1 // FIXME!
+LOG_MSG( "Loaded devices:" ) ;
+for ( DeviceTable::const_iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
+    (*it).second.dumpDevice( cout , "  " ) ;
+#endif
 }

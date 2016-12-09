@@ -36,7 +36,7 @@ namespace MouseInterception
             {
                 // run in console mode
                 AttachConsole( ATTACH_PARENT_PROCESS ) ;
-                System.Console.WriteLine( "\nInitialized the C# console." ) ; // FIXME!
+                System.Console.WriteLine( "\n>>> Initialized the C# console." ) ; // FIXME!
                 MouseDll mouseDll = new MouseDll( true ) ;
                 System.Windows.Forms.SendKeys.SendWait( "{ENTER}" ) ;
                 Application.Exit() ;

@@ -1,6 +1,8 @@
-﻿using System.IO ;
+﻿using System ;
+using System.IO ;
 using System.Xml ;
 using System.Runtime.InteropServices ;
+using System.Collections.Generic ;
 
 namespace MouseInterception
 {
@@ -10,17 +12,33 @@ namespace MouseInterception
         // IMPORTANT! The definitions here must be kept in sync with their C equivalents in api.hpp
 
         [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]
-        public struct Settings
+        public struct ApiSettings
         {
         }
 
-        private Settings mSettings ;
-        public Settings settings { get { return mSettings ; } }
+        private ApiSettings mSettings ;
+        public ApiSettings settings { get { return mSettings ; } }
+
+        [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]
+        public struct ApiDevice
+        {
+            public int mDeviceId ;
+            public string mHID ;
+            public int mDeviceNumber ;
+            public string mDisplayName ;
+            public bool mIsEnabled ;
+        }
+
+        private ApiDevice[] mDevices ;
+        public ApiDevice[] devices { get { return mDevices ; } }
 
         public AppConfig( string fname )
         {
+            // initialize
+            mSettings = new ApiSettings() ;
+            mDevices = new ApiDevice[ 0 ] ;
+
             // load the AppConfig
-            mSettings = new Settings() ;
             if ( ! File.Exists( fname ) )
                 return ;
             XmlReaderSettings xmlReaderSettings = new XmlReaderSettings() ;
@@ -31,8 +49,22 @@ namespace MouseInterception
             using ( XmlReader xmlReader = XmlReader.Create( fname , xmlReaderSettings ) )
                 xmlDoc.Load( xmlReader ) ;
 
-            // parse the values
+            // parse the app config
             XmlNode configXmlNode = xmlDoc.SelectSingleNode( "/config" ) ;
+
+            // parse the devices
+            List<ApiDevice> devices = new List<ApiDevice>() ;
+            foreach ( XmlNode xn in configXmlNode.SelectNodes("device") )
+            {
+                ApiDevice device = new ApiDevice() ;
+                device.mDeviceId = Int32.Parse( xn.Attributes["id"].Value ) ;
+                device.mHID = xn.SelectSingleNode("hid").InnerText.Trim() ;
+                device.mDeviceNumber = Int32.Parse( xn.SelectSingleNode("deviceNumber").InnerText ) ;
+                device.mDisplayName = Utils.getXmlChildNodeVal( xn , "displayName" ) ;
+                device.mIsEnabled = Utils.getXmlChildNodeVal( xn , "enabled" , false ) ;
+                devices.Add( device ) ;
+            }
+            mDevices = devices.ToArray() ;
         }
 
     }
