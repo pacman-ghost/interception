@@ -24,20 +24,39 @@ namespace MouseInterception
             if ( Directory.Exists( baseDir ) )
                 mBaseDir = baseDir ;
 
-            // load the app config
-            string fname = getAppRelativePath( "config.xml" ) ; // FIXME! this s.b. in the user's AppData folder
-            mAppConfig = new AppConfig( fname ) ;
+            try
+            {
+                // load the app config
+                string fname = getAppRelativePath( "config.xml" ) ; // FIXME! this s.b. in the user's AppData folder
+                mAppConfig = new AppConfig( fname ) ;
 
-            // load the debug config
-            fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
-            mDebugConfig = new DebugConfig( fname ) ;
+                // load the debug config
+                fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
+                mDebugConfig = new DebugConfig( fname ) ;
+            }
+            catch( Exception xcptn )
+            {
+                // FIXME! handle this better
+                AttachConsole( ATTACH_PARENT_PROCESS ) ;
+                System.Console.WriteLine( String.Format( ">>> PROGRAM ERROR: {0}" , xcptn ) ) ;
+                System.Windows.Forms.SendKeys.SendWait( "{ENTER}" ) ;
+                Application.Exit() ;
+                return ;
+            }
 
             if ( args.Length > 0 )
             {
                 // run in console mode
                 AttachConsole( ATTACH_PARENT_PROCESS ) ;
                 System.Console.WriteLine( "\n>>> Initialized the C# console." ) ; // FIXME!
-                MouseDll mouseDll = new MouseDll( true ) ;
+                try
+                {
+                    MouseDll mouseDll = new MouseDll( true ) ;
+                }
+                catch( Exception xcptn )
+                {
+                    System.Console.WriteLine( String.Format( ">>> PROGRAM ERROR: {0}" , xcptn ) ) ;
+                }
                 System.Windows.Forms.SendKeys.SendWait( "{ENTER}" ) ;
                 Application.Exit() ;
             }
