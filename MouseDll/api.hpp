@@ -57,16 +57,7 @@ struct ApiDebugConfig
 
 // IMPORTANT! The definitions here must be kept in sync with their C# equivalents in MouseDll.cs.
 
-extern void openApi( 
-    const ApiAppConfig* pAppConfig ,
-    const ApiDevice* pDevices , int nDevices ,
-    const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
-    const ApiAppProfile* pAppProfiles , int nAppProfiles ,
-    const ApiEvent* pEvents , int nEvents ,
-    const ApiAction* pActions , int nActions ,
-    const ApiDebugConfig* pDebugConfig ,
-    bool initConsole
-) ;
+extern void openApi( const ApiDebugConfig* pDebugConfig , bool initConsole ) ;
 extern void closeApi() ;
 
 extern void reloadConfig(
@@ -75,9 +66,9 @@ extern void reloadConfig(
     const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
     const ApiAppProfile* pAppProfiles , int nAppProfiles ,
     const ApiEvent* pEvents , int nEvents ,
-    const ApiAction* pActions , int nActions ,
-    const ApiDebugConfig* pDebugConfig
+    const ApiAction* pActions , int nActions
 ) ;
+extern void reloadDebugConfig( const ApiDebugConfig* pDebugConfig ) ;
 
 // ---------------------------------------------------------------------
 

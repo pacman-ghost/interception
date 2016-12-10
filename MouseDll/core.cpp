@@ -7,32 +7,15 @@ using namespace std ;
 // ---------------------------------------------------------------------
 
 void
-openApi(
-    const ApiAppConfig* pAppConfig ,
-    const ApiDevice* pDevices , int nDevices ,
-    const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
-    const ApiAppProfile* pAppProfiles , int nAppProfiles ,
-    const ApiEvent* pEvents , int nEvents ,
-    const ApiAction* pActions , int nActions ,
-    const ApiDebugConfig* pDebugConfig ,
-    bool initConsole
-)
+openApi( const ApiDebugConfig* pDebugConfig , bool initConsole )
 {
     // check if we are open
     if ( ghInterceptionDll != NULL )
         throw runtime_error( "API is already open." ) ;
 
     // initialize
+    reloadDebugConfig( pDebugConfig ) ;
     gEnableConsole = initConsole ;
-    reloadConfig(
-        pAppConfig ,
-        pDevices , nDevices ,
-        pDeviceConfigs , nDeviceConfigs ,
-        pAppProfiles , nAppProfiles ,
-        pEvents , nEvents ,
-        pActions , nActions ,
-        pDebugConfig
-    ) ;
 
     // load Interception
     wchar_t buf[ _MAX_PATH+1 ] ;
@@ -76,8 +59,7 @@ reloadConfig(
     const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
     const ApiAppProfile* pAppProfiles , int nAppProfiles ,
     const ApiEvent* pEvents , int nEvents ,
-    const ApiAction* pActions , int nActions ,
-    const ApiDebugConfig* pDebugConfig
+    const ApiAction* pActions , int nActions
 )
 {
     // validate the parameters
@@ -103,24 +85,6 @@ reloadConfig(
         throw runtime_error( "Missing Action's." ) ;
     if ( nActions < 0 )
         throw runtime_error( "Invalid Action count." ) ;
-    if ( pDebugConfig == NULL )
-        throw runtime_error( "Missing DebugConfig." ) ;
-    const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;
-    if ( pLogFilename == NULL )
-        pLogFilename = L"" ;
-
-    // initialize the log file
-    if ( _wcsicmp( gLogFilename.c_str() , pLogFilename ) != 0 )
-    {
-        if ( gLogFile.is_open() )
-            gLogFile.close() ;
-        if ( pLogFilename[0] != L'\0' )
-        {
-            gLogFile.open( pLogFilename ) ;
-            gLogFilename = pLogFilename ;
-        }
-    }
-    initLogging( pDebugConfig->mpLogging ) ;
 
     // load the Device's
     gDeviceTable.deleteAll() ;
@@ -178,4 +142,30 @@ reloadConfig(
             (*it).second->dumpDeviceConfig( buf , "  " ) ;
         LOG_MSG( buf.str() ) ;
     }
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void
+reloadDebugConfig( const ApiDebugConfig* pDebugConfig )
+{
+    // validate the parameters
+    if ( pDebugConfig == NULL )
+        throw runtime_error( "Missing DebugConfig." ) ;
+
+    // initialize the log file
+    const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;
+    if ( pLogFilename == NULL )
+        pLogFilename = L"" ;
+    if ( _wcsicmp( gLogFilename.c_str() , pLogFilename ) != 0 )
+    {
+        if ( gLogFile.is_open() )
+            gLogFile.close() ;
+        if ( pLogFilename[0] != L'\0' )
+        {
+            gLogFile.open( pLogFilename ) ;
+            gLogFilename = pLogFilename ;
+        }
+    }
+    initLogging( pDebugConfig->mpLogging ) ;
 }
