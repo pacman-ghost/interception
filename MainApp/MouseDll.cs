@@ -15,6 +15,10 @@ namespace MouseInterception
         private static extern string open_api(
             ref AppConfig.ApiSettings pAppSettings ,
             [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiDevice[] pDevices , int nDevices ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiDeviceConfig[] pDeviceConfigs , int nDeviceConfigs ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiAppProfile[] pAppProfiles , int nAppProfiles ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiEvent[] pEvents , int nEvents ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiAction[] pActions , int nActions ,
             ref DebugConfig.ApiSettings pDebugSettings ,
             int initConsole
         ) ;
@@ -28,6 +32,10 @@ namespace MouseInterception
         private static extern string reload_config(
             ref AppConfig.ApiSettings pAppSettings ,
             [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiDevice[] pDevices , int nDevices ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiDeviceConfig[] pDeviceConfigs , int nDeviceConfigs ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiAppProfile[] pAppProfiles , int nAppProfiles ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiEvent[] pEvents , int nEvents ,
+            [MarshalAs(UnmanagedType.LPArray)] AppConfig.ApiAction[] pActions , int nActions ,
             ref DebugConfig.ApiSettings pDebugSettings
         ) ;
 
@@ -36,10 +44,18 @@ namespace MouseInterception
             // open the mouse API
             AppConfig.ApiSettings appSettings = Program.appConfig.settings ;
             AppConfig.ApiDevice[] devices = Program.appConfig.devices ;
+            AppConfig.ApiDeviceConfig[] deviceConfigs = Program.appConfig.deviceConfigs ;
+            AppConfig.ApiAppProfile[] appProfiles = Program.appConfig.appProfiles ;
+            AppConfig.ApiEvent[] events = Program.appConfig.events ;
+            AppConfig.ApiAction[] actions = Program.appConfig.actions ;
             DebugConfig.ApiSettings debugSettings = Program.debugConfig.settings ;
             string errorMsg = open_api(
                 ref appSettings ,
                 devices , devices.Length ,
+                deviceConfigs , deviceConfigs.Length ,
+                appProfiles , appProfiles.Length ,
+                events , events.Length ,
+                actions , actions.Length ,
                 ref debugSettings ,
                 initConsole ? 1 : 0
             ) ;
@@ -60,10 +76,18 @@ namespace MouseInterception
             // reload the config
             AppConfig.ApiSettings appSettings = Program.appConfig.settings ;
             AppConfig.ApiDevice[] devices = Program.appConfig.devices ;
+            AppConfig.ApiDeviceConfig[] deviceConfigs = Program.appConfig.deviceConfigs ;
+            AppConfig.ApiAppProfile[] appProfiles = Program.appConfig.appProfiles ;
+            AppConfig.ApiEvent[] events = Program.appConfig.events ;
+            AppConfig.ApiAction[] actions = Program.appConfig.actions ;
             DebugConfig.ApiSettings debugSettings = Program.debugConfig.settings ;
             string errorMsg = reload_config(
                 ref appSettings ,
                 devices , devices.Length ,
+                deviceConfigs , deviceConfigs.Length ,
+                appProfiles , appProfiles.Length ,
+                events , events.Length ,
+                actions , actions.Length ,
                 ref debugSettings
             ) ;
             if ( errorMsg != null )

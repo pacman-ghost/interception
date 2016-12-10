@@ -1,8 +1,44 @@
 #include <windows.h>
-#include <cassert>
 #include "utils.hpp"
 
 using namespace std ;
+
+// ---------------------------------------------------------------------
+
+const char*
+enumString( const EnumStringInfo* pEnumStringTable , int val )
+{
+    // return the enum value's name
+    for ( const EnumStringInfo* pInfo=pEnumStringTable ; pInfo->mpName != NULL ; ++pInfo )
+    {
+        if ( pInfo->mVal == val )
+            return pInfo->mpName ;
+    }
+    assert( false ) ;
+    return "???" ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+string
+bitFlagsString( const BitFlagsInfo* pBitFlagsTable , int val , char sep )
+{
+    // convert the bit flags to a string
+    vector<const char*> bitFlags ;
+    for ( const BitFlagsInfo* pInfo=pBitFlagsTable ; pInfo->mpName != NULL ; ++pInfo )
+    {
+        if ( val & pInfo->mFlag )
+            bitFlags.push_back( pInfo->mpName ) ;
+    }
+    stringstream buf ;
+    for ( size_t i=0 ; i < bitFlags.size() ; ++i )
+    {
+        if ( i > 0 )
+            buf << sep ;
+        buf << bitFlags[i] ;
+    }
+    return buf.str() ;
+}
 
 // ---------------------------------------------------------------------
 

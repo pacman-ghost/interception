@@ -2,11 +2,11 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
-#include <cassert>
 #include <map>
 
-#include "device.hpp"
 #include "api.hpp"
+#include "device.hpp"
+#include "deviceConfig.hpp"
 #include "utils.hpp"
 
 using namespace std ;
@@ -17,8 +17,11 @@ static HMODULE ghInterceptionDll = NULL ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-typedef map< int , Device > DeviceTable ;
+typedef IntPtrMap<Device> DeviceTable ;
 static DeviceTable gDeviceTable ;
+
+typedef IntPtrMap<DeviceConfig> DeviceConfigTable ;
+static DeviceConfigTable gDeviceConfigTable ;
 
 // --- LOCAL DATA ------------------------------------------------------
 
@@ -46,6 +49,10 @@ void
 openApi(
     const ApiAppConfig* pAppConfig ,
     const ApiDevice* pDevices , int nDevices ,
+    const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
+    const ApiAppProfile* pAppProfiles , int nAppProfiles ,
+    const ApiEvent* pEvents , int nEvents ,
+    const ApiAction* pActions , int nActions ,
     const ApiDebugConfig* pDebugConfig ,
     bool initConsole
 )
@@ -56,7 +63,15 @@ openApi(
 
     // initialize
     gEnableConsole = initConsole ;
-    reloadConfig( pAppConfig , pDevices , nDevices , pDebugConfig ) ;
+    reloadConfig(
+        pAppConfig ,
+        pDevices , nDevices ,
+        pDeviceConfigs , nDeviceConfigs ,
+        pAppProfiles , nAppProfiles ,
+        pEvents , nEvents ,
+        pActions , nActions ,
+        pDebugConfig
+    ) ;
 
     // load Interception
     wchar_t buf[ _MAX_PATH+1 ] ;
@@ -96,6 +111,10 @@ void
 reloadConfig(
     const ApiAppConfig* pAppConfig ,
     const ApiDevice* pDevices , int nDevices ,
+    const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
+    const ApiAppProfile* pAppProfiles , int nAppProfiles ,
+    const ApiEvent* pEvents , int nEvents ,
+    const ApiAction* pActions , int nActions ,
     const ApiDebugConfig* pDebugConfig
 )
 {
@@ -105,7 +124,23 @@ reloadConfig(
     if ( pDevices == NULL )
         throw runtime_error( "Missing Device's." ) ;
     if ( nDevices < 0 )
-        throw runtime_error( "Invalid device count." ) ;
+        throw runtime_error( "Invalid Device count." ) ;
+    if ( pDeviceConfigs == NULL )
+        throw runtime_error( "Missing DeviceConfig's." ) ;
+    if ( nDeviceConfigs < 0 )
+        throw runtime_error( "Invalid DeviceConfig count." ) ;
+    if ( pAppProfiles == NULL )
+        throw runtime_error( "Missing AppProfile's." ) ;
+    if ( nAppProfiles < 0 )
+        throw runtime_error( "Invalid AppProfile count." ) ;
+    if ( pEvents == NULL )
+        throw runtime_error( "Missing Event's." ) ;
+    if ( nEvents < 0 )
+        throw runtime_error( "Invalid Event count." ) ;
+    if ( pActions == NULL )
+        throw runtime_error( "Missing Action's." ) ;
+    if ( nActions < 0 )
+        throw runtime_error( "Invalid Action count." ) ;
     if ( pDebugConfig == NULL )
         throw runtime_error( "Missing DebugConfig." ) ;
     const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;
@@ -125,15 +160,53 @@ reloadConfig(
     }
 
     // load the Device's
-    gDeviceTable.clear() ;
+    gDeviceTable.deleteAll() ;
     for ( int i=0 ; i < nDevices ; ++i )
     {
         const ApiDevice* pDevice = pDevices+i ;
-        gDeviceTable[ pDevice->mDeviceId ] = Device( pDevice ) ;
+        gDeviceTable[ pDevice->mDeviceId ] = new Device( pDevice ) ;
     }
 #if 1 // FIXME!
 LOG_MSG( "Loaded devices:" ) ;
 for ( DeviceTable::const_iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
-    (*it).second.dumpDevice( cout , "  " ) ;
+    (*it).second->dumpDevice( cout , "  " ) ;
+#endif
+
+    // load the DeviceConfig's
+    gDeviceConfigTable.deleteAll() ;
+    for ( int i=0 ; i < nDeviceConfigs ; ++i )
+    {
+        const ApiDeviceConfig* pDeviceConfig = pDeviceConfigs + i ;
+        // validate the AppProfile index/count
+        if ( pDeviceConfig->mAppProfileStartIndex < 0 || pDeviceConfig->mAppProfileStartIndex >= nAppProfiles )
+        {
+            throw runtime_error(
+                MAKE_STRING(
+                    "Invalid AppProfile start index: " << pDeviceConfig->mAppProfileStartIndex
+                    << " (#=" << nAppProfiles << ")"
+                )
+            ) ;
+        }
+        if ( pDeviceConfig->mAppProfileCount < 0 || pDeviceConfig->mAppProfileStartIndex + pDeviceConfig->mAppProfileCount > nAppProfiles )
+        {
+            throw runtime_error(
+                MAKE_STRING(
+                    "Invalid AppProfile count: " << pDeviceConfig->mAppProfileCount
+                    << " (s=" << pDeviceConfig->mAppProfileStartIndex << ", #=" << nAppProfiles << ")"
+                )
+            ) ;
+        }
+        // add the next DeviceConfig
+        gDeviceConfigTable[ pDeviceConfig->mDeviceId ] = new DeviceConfig(
+            pDeviceConfig ,
+            pAppProfiles+pDeviceConfig->mAppProfileStartIndex , pDeviceConfig->mAppProfileCount ,
+            pEvents , nEvents ,
+            pActions , nActions
+        ) ;
+    }
+#if 1 // FIXME!
+LOG_MSG( "Loaded device configs:" ) ;
+for ( DeviceConfigTable::const_iterator it=gDeviceConfigTable.begin() ; it != gDeviceConfigTable.end() ; ++it )
+    (*it).second->dumpDeviceConfig( cout , "  " ) ;
 #endif
 }

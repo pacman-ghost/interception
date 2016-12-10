@@ -1,8 +1,7 @@
 #ifndef DEVICE_HPP
 #define DEVICE_HPP
 
-#include <string>
-#include <ostream>
+#include "utils.hpp"
 
 struct ApiDevice ;
 
@@ -14,11 +13,7 @@ class Device
 // constructors/destructor:
 public:
     Device( const ApiDevice* pDevice ) ;
-    Device() ;
-// copy/assignment:
-public:
-    Device( const Device& rhs ) ;
-    Device& operator=( const Device& rhs ) ;
+    DISABLE_COPY_ASSIGNMENT( Device ) ;
 
 // access methods:
 public:
@@ -42,6 +37,7 @@ private:
 
 } ;
 
+// inserter
 std::ostream& operator<<( std::ostream& , const Device& ) ;
 
 // ---------------------------------------------------------------------

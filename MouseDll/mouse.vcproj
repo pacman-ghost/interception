@@ -177,7 +177,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\actions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\api.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\appProfile.cpp"
 				>
 			</File>
 			<File
@@ -189,7 +197,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\deviceConfig.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dllMain.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\event.cpp"
 				>
 			</File>
 			<File
@@ -203,11 +219,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\actions.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\api.hpp"
 				>
 			</File>
 			<File
+				RelativePath=".\appProfile.hpp"
+				>
+			</File>
+			<File
 				RelativePath=".\device.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\deviceConfig.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\event.hpp"
 				>
 			</File>
 			<File

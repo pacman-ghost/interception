@@ -11,6 +11,10 @@ extern "C" __declspec(dllexport) BSTR
 open_api(
     const ApiAppConfig* pAppConfig ,
     const ApiDevice* pDevices , int nDevices ,
+    const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
+    const ApiAppProfile* pAppProfiles , int nAppProfiles ,
+    const ApiEvent* pEvents , int nEvents ,
+    const ApiAction* pActions , int nActions ,
     const ApiDebugConfig* pDebugConfig ,
     int initConsole
 )
@@ -18,7 +22,16 @@ open_api(
     // open the API
     try
     {
-        openApi( pAppConfig , pDevices , nDevices , pDebugConfig , initConsole != 0 ) ;
+        openApi( 
+            pAppConfig ,
+            pDevices , nDevices ,
+            pDeviceConfigs , nDeviceConfigs ,
+            pAppProfiles , nAppProfiles ,
+            pEvents , nEvents ,
+            pActions , nActions ,
+            pDebugConfig ,
+            initConsole != 0
+        ) ;
         return NULL ;
     }
     catch ( exception& xcptn )
@@ -50,13 +63,25 @@ extern "C" __declspec(dllexport) BSTR
 reload_config(
     const ApiAppConfig* pAppConfig ,
     const ApiDevice* pDevices , int nDevices ,
+    const ApiDeviceConfig* pDeviceConfigs , int nDeviceConfigs ,
+    const ApiAppProfile* pAppProfiles , int nAppProfiles ,
+    const ApiEvent* pEvents , int nEvents ,
+    const ApiAction* pActions , int nActions ,
     const ApiDebugConfig* pDebugConfig
 )
 {
     // reload the config
     try
     {
-        reloadConfig( pAppConfig , pDevices , nDevices , pDebugConfig ) ;
+        reloadConfig(
+            pAppConfig ,
+            pDevices , nDevices ,
+            pDeviceConfigs , nDeviceConfigs ,
+            pAppProfiles , nAppProfiles ,
+            pEvents , nEvents ,
+            pActions , nActions ,
+            pDebugConfig
+        ) ;
         return NULL ;
     }
     catch ( exception& xcptn )

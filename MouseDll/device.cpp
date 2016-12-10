@@ -16,43 +16,19 @@ Device::Device( const ApiDevice* pDevice )
     mIsEnabled = pDevice->mIsEnabled ;
 }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-Device::Device()
-    : mDeviceId(-1)
-    , mHID() , mDeviceNumber(-1)
-    , mDisplayName() , mIsEnabled(false)
-{
-}
-
-// --- COPY/ASSIGNMENT -------------------------------------------------
-
-Device& Device::operator=( const Device& rhs )
-{
-    // copy the Device
-    mDeviceId = rhs.deviceId() ;
-    mHID = rhs.hid() ;
-    mDeviceNumber = rhs.deviceNumber() ;
-    mDisplayName = rhs.displayName() ;
-    mIsEnabled = rhs.isEnabled() ;
-    return *this ;
-}
-
-Device::Device( const Device& rhs ) { operator=(rhs) ; }
-
 // ---------------------------------------------------------------------
 
 void
 Device::dumpDevice( ostream& os , const char* pPrefix ) const
 {
-    // dump the device
+    // dump the Device
     if ( pPrefix == NULL )
         pPrefix = "" ;
-    os << pPrefix << "Device (id=" << deviceId() << "):" << endl ;
-    os << pPrefix << "- hid = \"" << hid() << "\"" << endl ;
-    os << pPrefix << "- deviceNumber = " << deviceNumber() << endl ;
-    os << pPrefix << "- displayName = \"" << displayName() << "\"" << endl ;
-    os << pPrefix << "- isEnabled = " << isEnabled() << endl ;
+    os << pPrefix << *this << ":" << endl ;
+    os << pPrefix << "  hid = \"" << hid() << "\"" << endl ;
+    os << pPrefix << "  deviceNumber = " << deviceNumber() << endl ;
+    os << pPrefix << "  displayName = \"" << displayName() << "\"" << endl ;
+    os << pPrefix << "  isEnabled = " << isEnabled() << endl ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,7 +37,7 @@ ostream&
 operator<<( ostream& os , const Device& device )
 {
     // insert the Device
-    os << "[" << device.deviceId() << ":" << device.hid() << "/" << device.deviceNumber() << "]" ;
+    os << "[Device-" << device.deviceId() << ":" << device.hid() << "/" << device.deviceNumber() << "]" ;
     return os ;
 }
 
