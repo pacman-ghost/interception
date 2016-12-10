@@ -3,6 +3,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <map>
+#include <set>
 
 #include "api.hpp"
 #include "device.hpp"
@@ -10,6 +11,8 @@
 #include "utils.hpp"
 
 using namespace std ;
+
+typedef set<string> StringSet ;
 
 // --- LOCAL DATA ------------------------------------------------------
 
@@ -26,8 +29,12 @@ static DeviceConfigTable gDeviceConfigTable ;
 // --- LOCAL DATA ------------------------------------------------------
 
 static bool gEnableConsole = false ;
+
 static wstring gLogFilename ;
 static ofstream gLogFile ;
+
+static StringSet gLogging ;
+static bool isLoggingEnabled( const string& s ) { return gLogging.find(s) != gLogging.end() ; }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -85,7 +92,8 @@ openApi(
         assert( false ) ;
         wcscpy_s( buf , ARRAY_SIZE(buf) , L"interception.dll" ) ;
     }
-    LOG_MSG( "Loading Interception: " << toUtf8(buf) ) ;
+    if ( isLoggingEnabled( "startup" ) )
+        LOG_MSG( "Loading Interception: " << toUtf8(buf) ) ;
     ghInterceptionDll = LoadLibrary( buf ) ;
     if ( ghInterceptionDll == NULL )
         throw runtime_error( MAKE_STRING( "Can't load Interception: " << getLastErrorString() ) ) ;
@@ -159,6 +167,21 @@ reloadConfig(
         }
     }
 
+    // initialize logging
+    gLogging.clear() ;
+    const wchar_t* p = pDebugConfig->mpLogging ;
+    for ( ; ; )
+    {
+        const wchar_t* q = wcschr( p , L'|' ) ;
+        if ( q == NULL )
+        {
+            gLogging.insert( toUtf8(p) ) ;
+            break ;
+        }
+        gLogging.insert( toUtf8(p,q-p) ) ;
+        p = q + 1 ;
+    }
+
     // load the Device's
     gDeviceTable.deleteAll() ;
     for ( int i=0 ; i < nDevices ; ++i )
@@ -166,11 +189,14 @@ reloadConfig(
         const ApiDevice* pDevice = pDevices+i ;
         gDeviceTable[ pDevice->mDeviceId ] = new Device( pDevice ) ;
     }
-#if 1 // FIXME!
-LOG_MSG( "Loaded devices:" ) ;
-for ( DeviceTable::const_iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
-    (*it).second->dumpDevice( cout , "  " ) ;
-#endif
+    if ( isLoggingEnabled( "config" ) )
+    {
+        stringstream buf ;
+        buf << "Loaded devices:" << endl ;
+        for ( DeviceTable::const_iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
+            (*it).second->dumpDevice( buf , "  " ) ;
+        LOG_MSG( buf.str() ) ;
+    }
 
     // load the DeviceConfig's
     gDeviceConfigTable.deleteAll() ;
@@ -204,9 +230,12 @@ for ( DeviceTable::const_iterator it=gDeviceTable.begin() ; it != gDeviceTable.e
             pActions , nActions
         ) ;
     }
-#if 1 // FIXME!
-LOG_MSG( "Loaded device configs:" ) ;
-for ( DeviceConfigTable::const_iterator it=gDeviceConfigTable.begin() ; it != gDeviceConfigTable.end() ; ++it )
-    (*it).second->dumpDeviceConfig( cout , "  " ) ;
-#endif
+    if ( isLoggingEnabled( "config" ) )
+    {
+        stringstream buf ;
+        buf << "Loaded device configs:" << endl ;
+        for ( DeviceConfigTable::const_iterator it=gDeviceConfigTable.begin() ; it != gDeviceConfigTable.end() ; ++it )
+            (*it).second->dumpDeviceConfig( buf , "  " ) ;
+        LOG_MSG( buf.str() ) ;
+    }
 }

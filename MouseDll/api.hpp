@@ -50,6 +50,7 @@ struct ApiAction
 struct ApiDebugConfig
 {
     const wchar_t* mpLogFilename ;
+    const wchar_t* mpLogging ;
 } ;
 
 // ---------------------------------------------------------------------

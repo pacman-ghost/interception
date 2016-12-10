@@ -1,4 +1,5 @@
-﻿using System.IO ;
+﻿using System ;
+using System.IO ;
 using System.Xml ;
 using System.Runtime.InteropServices ;
 
@@ -13,6 +14,7 @@ namespace MouseInterception
         public struct ApiSettings
         {
             public string mLogFilename ;
+            public string mLogging ;
         }
 
         private ApiSettings mSettings ;
@@ -33,10 +35,24 @@ namespace MouseInterception
                 xmlDoc.Load( xmlReader ) ;
 
             // parse the values
-            XmlNode configXmlNode = xmlDoc.SelectSingleNode( "/debug" ) ;
-            XmlNode xmlNode = configXmlNode.SelectSingleNode( "logFilename" ) ;
+            XmlNode debugXmlNode = xmlDoc.SelectSingleNode( "/debug" ) ;
+            XmlNode xmlNode = debugXmlNode.SelectSingleNode( "logFilename" ) ;
             if ( xmlNode != null )
                 mSettings.mLogFilename = xmlNode.InnerText.Trim() ;
+            mSettings.mLogging = "" ;
+            xmlNode = debugXmlNode.SelectSingleNode( "logging" ) ;
+            if ( xmlNode != null )
+            {
+                foreach( XmlAttribute xa in xmlNode.Attributes )
+                {
+                    if ( Boolean.Parse( xa.Value ) )
+                    {
+                        if ( mSettings.mLogging.Length > 0 )
+                            mSettings.mLogging += "|" ;
+                        mSettings.mLogging += xa.Name.ToLower() ;
+                    }
+                }
+            }
         }
 
     }
