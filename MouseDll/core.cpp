@@ -1,54 +1,8 @@
-#include <windows.h>
-#include <iostream>
-#include <fstream>
-#include <stdexcept>
-#include <map>
-#include <set>
-
 #include "api.hpp"
-#include "device.hpp"
-#include "deviceConfig.hpp"
+#include "globals.hpp"
 #include "utils.hpp"
 
 using namespace std ;
-
-typedef set<string> StringSet ;
-
-// --- LOCAL DATA ------------------------------------------------------
-
-static HMODULE ghInterceptionDll = NULL ;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-typedef IntPtrMap<Device> DeviceTable ;
-static DeviceTable gDeviceTable ;
-
-typedef IntPtrMap<DeviceConfig> DeviceConfigTable ;
-static DeviceConfigTable gDeviceConfigTable ;
-
-// --- LOCAL DATA ------------------------------------------------------
-
-static bool gEnableConsole = false ;
-
-static wstring gLogFilename ;
-static ofstream gLogFile ;
-
-static StringSet gLogging ;
-static bool isLoggingEnabled( const string& s ) { return gLogging.find(s) != gLogging.end() ; }
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-#define LOG_MSG( msg ) \
-{ \
-    if ( gEnableConsole || gLogFile.is_open() ) \
-    { \
-        string _buf_ = MAKE_STRING( msg ) ; \
-        if ( gEnableConsole ) \
-            cout << _buf_ << endl ; \
-        if ( gLogFile.is_open() ) \
-            gLogFile << _buf_ << endl ; \
-    } \
-}
 
 // ---------------------------------------------------------------------
 
@@ -166,21 +120,7 @@ reloadConfig(
             gLogFilename = pLogFilename ;
         }
     }
-
-    // initialize logging
-    gLogging.clear() ;
-    const wchar_t* p = pDebugConfig->mpLogging ;
-    for ( ; ; )
-    {
-        const wchar_t* q = wcschr( p , L'|' ) ;
-        if ( q == NULL )
-        {
-            gLogging.insert( toUtf8(p) ) ;
-            break ;
-        }
-        gLogging.insert( toUtf8(p,q-p) ) ;
-        p = q + 1 ;
-    }
+    initLogging( pDebugConfig->mpLogging ) ;
 
     // load the Device's
     gDeviceTable.deleteAll() ;

@@ -2,7 +2,6 @@
 #define APPPROFILE_HPP
 
 #include "event.hpp"
-#include "utils.hpp"
 
 struct ApiAppProfile ;
 

@@ -1,6 +1,6 @@
 #include <stdexcept>
-#include <windows.h>
 #include "api.hpp"
+#include "globals.hpp"
 #include "utils.hpp"
 
 using namespace std ;
