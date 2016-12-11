@@ -7,6 +7,7 @@
 
 #include "device.hpp"
 #include "deviceConfig.hpp"
+#include "api.hpp"
 #include "utils.hpp"
 
 // ---------------------------------------------------------------------
@@ -19,24 +20,21 @@ extern DeviceTable gDeviceTable ;
 typedef IntPtrMap<DeviceConfig> DeviceConfigTable ;
 extern DeviceConfigTable gDeviceConfigTable ;
 
+extern PCALLBACKFN gpCallbackFn ;
+
 // ---------------------------------------------------------------------
 
 #define LOG_MSG( msg ) \
 { \
-    if ( gEnableConsole || gLogFile.is_open() ) \
-    { \
-        string _buf_ = MAKE_STRING( msg ) ; \
-        if ( gEnableConsole ) \
-            cout << _buf_ << endl ; \
-        if ( gLogFile.is_open() ) \
-            gLogFile << _buf_ << endl ; \
-    } \
+    string _buf_ = MAKE_STRING( msg ) ; \
+    cout << _buf_ << endl ; \
+    if ( gLogFile.is_open() ) \
+        gLogFile << _buf_ << endl ; \
 }
 
 extern void initLogging( const wchar_t* ) ;
 extern bool isLoggingEnabled( const std::string& ) ;
 
-extern bool gEnableConsole ;
 extern std::wstring gLogFilename ;
 extern std::ofstream gLogFile ;
 

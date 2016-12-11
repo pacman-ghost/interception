@@ -8,12 +8,12 @@ using namespace std ;
 // ---------------------------------------------------------------------
 
 extern "C" __declspec(dllexport) BSTR
-open_api( const ApiDebugConfig* pDebugConfig , int initConsole )
+open_api( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig )
 {
     // open the API
     try
     {
-        openApi( pDebugConfig , initConsole != 0 ) ;
+        openApi( pCallbackFn , pDebugConfig ) ;
         return NULL ;
     }
     catch ( exception& xcptn )
@@ -79,6 +79,23 @@ reload_debug_config( const ApiDebugConfig* pDebugConfig )
     try
     {
         reloadDebugConfig( pDebugConfig ) ;
+        return NULL ;
+    }
+    catch ( exception& xcptn )
+    {
+        return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
+    }
+}
+
+// ---------------------------------------------------------------------
+
+extern "C" __declspec(dllexport) BSTR
+run_main_loop( int* pExitFlag )
+{
+    // run the main loop
+    try
+    {
+        runMainLoop( pExitFlag ) ;
         return NULL ;
     }
     catch ( exception& xcptn )

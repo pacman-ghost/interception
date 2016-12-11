@@ -57,7 +57,12 @@ struct ApiDebugConfig
 
 // IMPORTANT! The definitions here must be kept in sync with their C# equivalents in MouseDll.cs.
 
-extern void openApi( const ApiDebugConfig* pDebugConfig , bool initConsole ) ;
+typedef int (__stdcall *PCALLBACKFN)( int callbackType , const char* pCallbackMsg ) ;
+#define CBTYPE_STARTED      1
+#define CBTYPE_STOPPED      2
+#define CBTYPE_FATAL_ERROR  3
+
+extern void openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig ) ;
 extern void closeApi() ;
 
 extern void reloadConfig(
@@ -69,6 +74,8 @@ extern void reloadConfig(
     const ApiAction* pActions , int nActions
 ) ;
 extern void reloadDebugConfig( const ApiDebugConfig* pDebugConfig ) ;
+
+extern void runMainLoop( int* pExitFlag ) ;
 
 // ---------------------------------------------------------------------
 

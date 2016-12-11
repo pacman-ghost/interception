@@ -2,14 +2,22 @@
 using System.IO ;
 using System.Runtime.InteropServices ;
 using System.Windows.Forms ;
+using System.Diagnostics ;
+using System.Text ;
 
 namespace MouseInterception
 {
     static class Program
     {
+
+        public const string APP_NAME = "udMeeces" ;
+
         private static string mBaseDir ;
-        private static AppConfig mAppConfig ;
-        private static DebugConfig mDebugConfig ;
+        private static AppConfig mAppConfig = null ;
+        private static DebugConfig mDebugConfig = null ;
+        private static MouseDll mMouseDll = null ;
+
+        private static MainForm mMainForm = null ;
 
         [DllImport( "kernel32.dll" )]
         static extern bool AttachConsole( int processId ) ;
@@ -24,6 +32,9 @@ namespace MouseInterception
             if ( Directory.Exists( baseDir ) )
                 mBaseDir = baseDir ;
 
+            // initialize
+            bool hasConsole = AttachConsole( ATTACH_PARENT_PROCESS ) ;
+
             try
             {
                 // load the app config
@@ -33,40 +44,80 @@ namespace MouseInterception
                 // load the debug config
                 fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
                 mDebugConfig = new DebugConfig( fname ) ;
+
+                // initialize
+                if ( hasConsole )
+                    System.Console.WriteLine( "" ) ;
+                mMouseDll = new MouseDll( new MouseDll.callbackDelegate(onCallback) ) ;
             }
             catch( Exception xcptn )
             {
-                // FIXME! handle this better
-                AttachConsole( ATTACH_PARENT_PROCESS ) ;
-                System.Console.WriteLine( String.Format( ">>> PROGRAM ERROR: {0}" , xcptn ) ) ;
-                System.Windows.Forms.SendKeys.SendWait( "{ENTER}" ) ;
-                Application.Exit() ;
+                string errorMsg = String.Format( "Startup error: {0}" , xcptn.Message ) ;
+                if ( hasConsole )
+                {
+                    System.Console.WriteLine( errorMsg ) ;
+                    System.Windows.Forms.SendKeys.SendWait( "{ENTER}" ) ;
+                }
+                else
+                    showErrorMsg( errorMsg ) ;
                 return ;
             }
 
-            if ( args.Length > 0 )
+            // run the main program
+            if ( hasConsole )
             {
                 // run in console mode
-                AttachConsole( ATTACH_PARENT_PROCESS ) ;
-                System.Console.WriteLine( "\n>>> Initialized the C# console." ) ; // FIXME!
                 try
                 {
-                    MouseDll mouseDll = new MouseDll( true ) ;
+                    int exitFlag = 0 ;
+                    Console.CancelKeyPress += delegate( object sender , ConsoleCancelEventArgs e )
+                    {
+                        // Ctrl+C was pressed - tell the main loop to stop
+                        exitFlag = 1 ;
+                        e.Cancel = true ;
+                    } ;
+                    // run the main loop (this will block until exitFlag is set)
+                    mMouseDll.runMainLoop( out exitFlag ) ;
                 }
                 catch( Exception xcptn )
                 {
-                    System.Console.WriteLine( String.Format( ">>> PROGRAM ERROR: {0}" , xcptn ) ) ;
+                    // NOTE: We get here if the main loop throws an unhandled exception.
+                    Debug.Assert( false ) ;
+                    onCallback( MouseDll.CBTYPE_FATAL_ERROR , Utils.toUtf8(xcptn.Message) ) ;
                 }
                 System.Windows.Forms.SendKeys.SendWait( "{ENTER}" ) ;
-                Application.Exit() ;
             }
             else
             {
                 // run with a GUI
-                MouseDll mouseDll = new MouseDll( false ) ;
                 Application.EnableVisualStyles() ;
                 Application.SetCompatibleTextRenderingDefault( false ) ;
-                Application.Run( new MainForm() ) ;
+                mMainForm = new MainForm() ;
+                Application.Run( mMainForm ) ;
+            }
+        }
+
+        public static void onCallback( int callbackType , IntPtr pCallbackMsg )
+        {
+            // handle the callback
+            string callbackMsg = (pCallbackMsg != null) ? Utils.fromUtf8(pCallbackMsg) : ""  ;
+            switch( callbackType )
+            {
+                case MouseDll.CBTYPE_STARTED:
+                case MouseDll.CBTYPE_STOPPED:
+                    //System.Console.WriteLine( callbackMsg ) ;
+                    break ;
+                case MouseDll.CBTYPE_FATAL_ERROR:
+                    string errorMsg = String.Format( "FATAL ERROR: {0}" , callbackMsg ) ;
+                    System.Console.WriteLine( errorMsg ) ;
+                    if ( Program.mainForm != null )
+                        Program.showErrorMsg( errorMsg ) ;
+                    Application.Exit() ;
+                    break ;
+                default:
+                    Debug.Assert( false ) ;
+                    System.Console.WriteLine( String.Format( "UNKNOWN CALLBACK {0}: {1}" , callbackType , callbackMsg ) ) ;
+                    break ;
             }
         }
 
@@ -77,8 +128,14 @@ namespace MouseInterception
             return System.IO.Path.GetFullPath( path );
         }
 
+        public static void showInfoMsg( string msg ) { MessageBox.Show(msg,APP_NAME,MessageBoxButtons.OK,MessageBoxIcon.Information) ; }
+        public static void showWarningMsg( string msg ) { MessageBox.Show(msg,APP_NAME,MessageBoxButtons.OK,MessageBoxIcon.Warning) ; }
+        public static void showErrorMsg( string msg ) { MessageBox.Show(msg,APP_NAME,MessageBoxButtons.OK,MessageBoxIcon.Error) ; }
+
         public static AppConfig appConfig { get { return mAppConfig ; } }
         public static DebugConfig debugConfig { get { return mDebugConfig ; } }
+        public static MouseDll mouseDll { get { return mMouseDll ; } }
+        public static MainForm mainForm { get { return mMainForm ; } }
 
     }
 }

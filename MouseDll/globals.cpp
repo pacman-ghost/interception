@@ -11,7 +11,8 @@ HMODULE ghInterceptionDll = NULL ;
 DeviceTable gDeviceTable ;
 DeviceConfigTable gDeviceConfigTable ;
 
-bool gEnableConsole = false ;
+PCALLBACKFN gpCallbackFn = NULL ;
+
 wstring gLogFilename ;
 ofstream gLogFile ;
 

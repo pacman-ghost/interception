@@ -5,14 +5,20 @@ namespace MouseInterception
 {
     class MouseDll
     {
+
         // IMPORTANT! The definitions here must be kept in sync with their C equivalents in api.hpp
 
         // NOTE: The first place DLL's are loaded from are the application directory.
         private const string DLL_NAME = "mouse.dll" ;
 
+        public delegate void callbackDelegate( int callbackType , IntPtr pCallbackMsg ) ; // nb: pCallbackMsg is UTF8
+        public const int CBTYPE_STARTED = 1 ;
+        public const int CBTYPE_STOPPED = 2 ;
+        public const int CBTYPE_FATAL_ERROR = 3 ;
+
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
-        private static extern string open_api( ref DebugConfig.ApiSettings pDebugSettings , int initConsole ) ;
+        private static extern string open_api( callbackDelegate deleg , ref DebugConfig.ApiSettings pDebugSettings ) ;
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
@@ -33,11 +39,15 @@ namespace MouseInterception
         [return: MarshalAs(UnmanagedType.BStr)]
         private static extern string reload_debug_config( ref DebugConfig.ApiSettings pDebugSettings ) ;
 
-        public MouseDll( bool initConsole )
+        [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
+        [return: MarshalAs(UnmanagedType.BStr)]
+        private static extern string run_main_loop( out int pExitFlag ) ;
+
+        public MouseDll( callbackDelegate cbDeleg )
         {
             // open the mouse API
             DebugConfig.ApiSettings debugSettings = Program.debugConfig.settings ;
-            string errorMsg = open_api( ref debugSettings , initConsole?1:0 ) ;
+            string errorMsg = open_api( cbDeleg , ref debugSettings ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
             reloadConfig() ;
@@ -77,6 +87,14 @@ namespace MouseInterception
             // reload the debug config
             DebugConfig.ApiSettings debugSettings = Program.debugConfig.settings ;
             string errorMsg = reload_debug_config( ref debugSettings ) ;
+            if ( errorMsg != null )
+                throw new Exception( errorMsg ) ;
+        }
+
+        public void runMainLoop( out int exitFlag )
+        {
+            // run the main loop
+            string errorMsg = run_main_loop( out exitFlag ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
         }

@@ -1,5 +1,7 @@
 ﻿using System ;
+using System.Runtime.InteropServices ;
 using System.Xml ;
+using System.Text ;
 
 namespace MouseInterception
 {
@@ -34,6 +36,28 @@ namespace MouseInterception
             return defaultVal ;
         }
         public static string getXmlAttr( XmlNode xn , string s ) { return getXmlAttr(xn,s,"") ; }
+
+        public static IntPtr toUtf8( string val )
+        {
+            // convert the string to UTF8
+            byte[] buf = Encoding.UTF8.GetBytes( val ) ;
+            Array.Resize( ref buf , buf.Length+1 ) ;
+            buf[buf.Length-1] = 0 ;
+            IntPtr pUtf8Val = Marshal.AllocHGlobal( buf.Length ) ;
+            Marshal.Copy( buf , 0 , pUtf8Val , buf.Length ) ;
+            return pUtf8Val ;
+        }
+
+        public static string fromUtf8( IntPtr pVal )
+        {
+            // convert the string from UTF8
+            int nChars = 0 ;
+            while ( Marshal.ReadByte( pVal , nChars ) != 0 )
+                ++ nChars ;
+            byte[] buf = new byte[ nChars ] ;
+            Marshal.Copy( pVal , buf , 0 , buf.Length ) ;
+            return Encoding.UTF8.GetString( buf ) ;
+        }
 
         public static bool? getKeyState( XmlNode xmlNode , string attrName )
         {

@@ -1,4 +1,3 @@
-#include "api.hpp"
 #include "globals.hpp"
 #include "utils.hpp"
 
@@ -7,15 +6,16 @@ using namespace std ;
 // ---------------------------------------------------------------------
 
 void
-openApi( const ApiDebugConfig* pDebugConfig , bool initConsole )
+openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig )
 {
     // check if we are open
     if ( ghInterceptionDll != NULL )
         throw runtime_error( "API is already open." ) ;
 
     // initialize
+    assert( gpCallbackFn == NULL ) ;
+    gpCallbackFn = pCallbackFn ;
     reloadDebugConfig( pDebugConfig ) ;
-    gEnableConsole = initConsole ;
 
     // load Interception
     wchar_t buf[ _MAX_PATH+1 ] ;
@@ -48,6 +48,10 @@ closeApi()
     // close Interception
     FreeLibrary( ghInterceptionDll ) ;
     ghInterceptionDll = NULL ;
+
+    // clean up
+    assert( gpCallbackFn != NULL ) ;
+    gpCallbackFn = NULL ;
 }
 
 // ---------------------------------------------------------------------
