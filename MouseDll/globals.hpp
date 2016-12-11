@@ -26,14 +26,15 @@ extern PCALLBACKFN gpCallbackFn ;
 
 #define LOG_MSG( msg ) \
 { \
-    string _buf_ = MAKE_STRING( msg ) ; \
-    cout << _buf_ << endl ; \
+    string _buf_ = makeLogMsg( MAKE_STRING( msg ) ) ; \
+    cout << _buf_ ; \
     if ( gLogFile.is_open() ) \
-        gLogFile << _buf_ << endl ; \
+        gLogFile << _buf_ ; \
 }
 
 extern void initLogging( const wchar_t* ) ;
 extern bool isLoggingEnabled( const std::string& ) ;
+extern std::string makeLogMsg( const std::string& ) ;
 
 extern std::wstring gLogFilename ;
 extern std::ofstream gLogFile ;
