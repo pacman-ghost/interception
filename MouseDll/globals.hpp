@@ -46,4 +46,8 @@ extern std::ofstream gLogFile ;
 
 // ---------------------------------------------------------------------
 
+extern std::ostream& operator<<( std::ostream& os , const std::exception& xcptn ) ;
+
+// ---------------------------------------------------------------------
+
 #endif // GLOBALS_HPP

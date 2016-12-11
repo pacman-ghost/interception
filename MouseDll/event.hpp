@@ -29,6 +29,10 @@ public:
 public:
     void dumpEvent( std::ostream& os , const char* pPrefix="" ) const ;
 
+// miscellaneous methods:
+public:
+    static std::string keyModifiersString( int keyModifiers ) ;
+
 // data members:
 private:
     int mEventType ;

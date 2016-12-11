@@ -49,7 +49,7 @@ namespace MouseInterception
                     {
                         if ( mSettings.mLogging.Length > 0 )
                             mSettings.mLogging += "|" ;
-                        mSettings.mLogging += xa.Name.ToLower() ;
+                        mSettings.mLogging += xa.Name ;
                     }
                 }
             }

@@ -54,12 +54,14 @@ operator<<( ostream& os , const Event& evt )
     // insert the Event
     os << "{Event:" << enumString(gEventTypeStringTable,evt.eventType()) ;
     if ( evt.keyModifiers() != 0 )
-        os << ":" << bitFlagsString(gKeyModifiersStringTable,evt.keyModifiers(),'+') ;
+        os << ":" << Event::keyModifiersString(evt.keyModifiers()) ;
     os << "}" ;
     return os ;
 }
 
 // ---------------------------------------------------------------------
+
+string Event::keyModifiersString( int km ) { return bitFlagsString(gKeyModifiersStringTable,km,'+') ; }
 
 int Event::eventType() const { return mEventType ; }
 int Event::keyModifiers() const { return mKeyModifiers ; }

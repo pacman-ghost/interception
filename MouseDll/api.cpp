@@ -18,7 +18,7 @@ open_api( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig )
     }
     catch ( exception& xcptn )
     {
-        return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
+        return SysAllocString( fromUtf8( MAKE_STRING(xcptn) ).c_str() ) ;
     }
 }
 
@@ -35,7 +35,7 @@ close_api()
     }
     catch ( exception& xcptn )
     {
-        return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
+        return SysAllocString( fromUtf8( MAKE_STRING(xcptn) ).c_str() ) ;
     }
 }
 
@@ -66,7 +66,7 @@ reload_config(
     }
     catch ( exception& xcptn )
     {
-        return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
+        return SysAllocString( fromUtf8( MAKE_STRING(xcptn) ).c_str() ) ;
     }
 }
 
@@ -83,7 +83,7 @@ reload_debug_config( const ApiDebugConfig* pDebugConfig )
     }
     catch ( exception& xcptn )
     {
-        return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
+        return SysAllocString( fromUtf8( MAKE_STRING(xcptn) ).c_str() ) ;
     }
 }
 
@@ -100,6 +100,6 @@ run_main_loop( int* pExitFlag )
     }
     catch ( exception& xcptn )
     {
-        return SysAllocString( fromUtf8( MAKE_STRING( xcptn.what() ) ).c_str() ) ;
+        return SysAllocString( fromUtf8( MAKE_STRING(xcptn) ).c_str() ) ;
     }
 }

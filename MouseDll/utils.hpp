@@ -27,6 +27,8 @@ inline std::string toUtf8( const std::wstring& str ) { return toUtf8(str.c_str()
 extern std::wstring fromUtf8( const char* pStr , int len=-1 ) ;
 inline std::wstring fromUtf8( const std::string& str ) { return fromUtf8(str.c_str(),str.length()) ; }
 
+template<class T> extern std::string hexString( T val , int fieldWidth=-1 ) ;
+
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 // NOTE: These are not implemented and will generate a link error if we accidentally

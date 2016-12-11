@@ -1,3 +1,5 @@
+#include <limits>
+
 #include "utils.hpp"
 #include "globals.hpp"
 
@@ -117,3 +119,31 @@ fromUtf8( const char* pStr , int len )
 
     return buf ; 
 }
+
+// ---------------------------------------------------------------------
+
+template<class T>
+string
+hexString( T val , int fieldWidth )
+{
+    // convert the numeric value to a hex string
+    stringstream buf ;
+    if ( fieldWidth < 0 )
+        fieldWidth = (numeric_limits<T>::digits + 3) / 4 ;
+    buf.width( fieldWidth ) ;
+    buf.fill( '0' ) ;
+    buf << hex << val ;
+    string bufVal = buf.str() ;
+    char* p = const_cast<char*>( bufVal.c_str() ) ;
+    for ( ; *p != '\0' ; ++p )
+        *p = toupper( *p ) ;
+    return bufVal ;
+}
+
+template string hexString<int>( int , int ) ; // nb: instantiate the template
+template string hexString<unsigned int>( unsigned int , int ) ; // nb: instantiate the template
+template string hexString<short>( short , int ) ; // nb: instantiate the template
+template string hexString<unsigned short>( unsigned short , int ) ; // nb: instantiate the template
+template string hexString<long>( long , int ) ; // nb: instantiate the template
+template string hexString<unsigned long>( unsigned long , int ) ; // nb: instantiate the template
+template string hexString<void*>( void* , int ) ; // nb: instantiate the template
