@@ -39,6 +39,8 @@ namespace MouseInterception
             {
                 // load the app config
                 string fname = getAppRelativePath( "config.xml" ) ; // FIXME! this s.b. in the user's AppData folder
+                if ( args.Length >= 1 )
+                    fname = args[0] ;
                 mAppConfig = new AppConfig( fname ) ;
 
                 // load the debug config
