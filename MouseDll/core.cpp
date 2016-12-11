@@ -29,8 +29,7 @@ openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig )
         assert( false ) ;
         wcscpy_s( buf , ARRAY_SIZE(buf) , L"interception.dll" ) ;
     }
-    if ( isLoggingEnabled( "startup" ) )
-        LOG_MSG( "Loading Interception: " << toUtf8(buf) ) ;
+    LOG_CMSG( "startup" , "Loading Interception: " << toUtf8(buf) ) ;
     ghInterceptionDll = LoadLibrary( buf ) ;
     if ( ghInterceptionDll == NULL )
         throw runtime_error( MAKE_STRING( "Can't load Interception: " << getLastErrorString() ) ) ;

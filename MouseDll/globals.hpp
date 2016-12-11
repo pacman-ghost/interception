@@ -31,6 +31,11 @@ extern PCALLBACKFN gpCallbackFn ;
     if ( gLogFile.is_open() ) \
         gLogFile << _buf_ ; \
 }
+#define LOG_CMSG( c , msg ) \
+{ \
+    if ( isLoggingEnabled( c ) ) \
+        LOG_MSG( msg ) ; \
+}
 
 extern void initLogging( const wchar_t* ) ;
 extern bool isLoggingEnabled( const std::string& ) ;
