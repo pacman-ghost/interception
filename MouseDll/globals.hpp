@@ -4,11 +4,19 @@
 #include <windows.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <set>
 
+#include "interception.h"
 #include "device.hpp"
 #include "deviceConfig.hpp"
 #include "api.hpp"
 #include "utils.hpp"
+
+typedef std::vector<char> CharVector ;
+typedef std::vector<wchar_t> WideCharVector ;
+typedef std::set<int> IntSet ;
+typedef std::set<std::string> StringSet ;
 
 // ---------------------------------------------------------------------
 
@@ -19,6 +27,9 @@ extern DeviceTable gDeviceTable ;
 
 typedef IntPtrMap<DeviceConfig> DeviceConfigTable ;
 extern DeviceConfigTable gDeviceConfigTable ;
+
+typedef std::set<InterceptionDevice> InterceptionDeviceSet ;
+extern InterceptionDeviceSet gUnknownDevices ;
 
 extern PCALLBACKFN gpCallbackFn ;
 

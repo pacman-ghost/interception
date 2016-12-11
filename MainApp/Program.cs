@@ -116,6 +116,9 @@ namespace MouseInterception
                         Program.showErrorMsg( errorMsg ) ;
                     Application.Exit() ;
                     break ;
+                case MouseDll.CBTYPE_NEW_DEVICE:
+                    System.Console.WriteLine( String.Format( "NEW DEVICE: {0}" , callbackMsg ) ) ;
+                    break ;
                 default:
                     Debug.Assert( false ) ;
                     System.Console.WriteLine( String.Format( "UNKNOWN CALLBACK {0}: {1}" , callbackType , callbackMsg ) ) ;

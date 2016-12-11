@@ -1,5 +1,3 @@
-#include "interception.h"
-
 #include "globals.hpp"
 
 using namespace std ;
@@ -8,6 +6,7 @@ using namespace std ;
 
 // local functions:
 static void doRunMainLoop( int* pExitFlag ) ;
+static bool findDevice( InterceptionDevice hDevice , Device** ppDevice ) ;
 
 // ---------------------------------------------------------------------
 
@@ -116,6 +115,35 @@ doRunMainLoop( int* pExitFlag )
             ) ;
         }
 
+        // find the device that generated the event
+        Device* pDevice ;
+        if ( ! findDevice( hDevice , &pDevice ) )
+        {
+            // can't find the the device - check if we've seen it before
+            if ( gUnknownDevices.find( hDevice ) == gUnknownDevices.end() )
+            {
+                // nope - notify the front-end about the new device
+                // NOTE: We seem to get multiple hardware ID's back, but the first one seems to be the one we want :shrug:
+                WideCharVector buf( 4*1024 ) ;
+                size_t nChars = interception_get_hardware_id( hContext , hDevice , &buf[0] , buf.size()*sizeof(wchar_t) ) ;
+                (*gpCallbackFn)( CBTYPE_NEW_DEVICE , MAKE_CSTRING(hDevice << "|" << toUtf8(&buf[0],nChars)) ) ;
+                gUnknownDevices.insert( hDevice ) ;
+            }
+
+            // forward the event on (for normal processing)
+            interception_send( hContext , hDevice ,&stroke , 1 ) ;
+            continue ;
+        }
+
+        // check if the device is enabled
+        if ( ! pDevice->isEnabled() )
+        {
+            // nope - just forward the event (for normal processing)
+            interception_send( hContext , hDevice ,&stroke , 1 ) ;
+            continue ;
+        }
+
+        // FIXME! handle the event
         interception_send( hContext , hDevice ,&stroke , 1 ) ;
     }
 
@@ -124,4 +152,23 @@ doRunMainLoop( int* pExitFlag )
     interception_destroy_context( hContext ) ;
 
     LOG_CMSG( "system" , "Main loop ended." ) ;
+}
+
+// ---------------------------------------------------------------------
+
+static bool
+findDevice( InterceptionDevice hDevice , Device** ppDevice )
+{
+    // find the specified device
+    for( DeviceTable::iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
+    {
+        Device* pDevice = (*it).second ;
+        // FIXME! have to check HID as well
+        if ( pDevice->deviceNumber() == hDevice )
+        {
+            *ppDevice = pDevice ;
+            return true ;
+        }
+    }
+    return false ;
 }

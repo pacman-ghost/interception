@@ -61,6 +61,7 @@ typedef int (__stdcall *PCALLBACKFN)( int callbackType , const char* pCallbackMs
 #define CBTYPE_STARTED      1
 #define CBTYPE_STOPPED      2
 #define CBTYPE_FATAL_ERROR  3
+#define CBTYPE_NEW_DEVICE   10
 
 extern void openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig ) ;
 extern void closeApi() ;

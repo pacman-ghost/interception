@@ -1,4 +1,3 @@
-#include <set>
 #include <ctime>
 
 #include "globals.hpp"
@@ -17,6 +16,7 @@ HMODULE ghInterceptionDll = NULL ;
 
 DeviceTable gDeviceTable ;
 DeviceConfigTable gDeviceConfigTable ;
+InterceptionDeviceSet gUnknownDevices ;
 
 PCALLBACKFN gpCallbackFn = NULL ;
 
@@ -25,7 +25,6 @@ ofstream gLogFile ;
 
 // ---------------------------------------------------------------------
 
-typedef set<string> StringSet ;
 static StringSet gLogging ;
 
 void initLogging( const wchar_t* pLogging )

@@ -15,6 +15,7 @@ namespace MouseInterception
         public const int CBTYPE_STARTED = 1 ;
         public const int CBTYPE_STOPPED = 2 ;
         public const int CBTYPE_FATAL_ERROR = 3 ;
+        public const int CBTYPE_NEW_DEVICE = 10 ;
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]

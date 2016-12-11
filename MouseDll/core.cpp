@@ -95,6 +95,7 @@ reloadConfig(
             (*it).second->dumpDevice( buf , "  " ) ;
         LOG_MSG( buf.str() ) ;
     }
+    gUnknownDevices.clear() ;
 
     // load the DeviceConfig's
     gDeviceConfigTable.deleteAll() ;
