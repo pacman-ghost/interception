@@ -1,4 +1,5 @@
 #include <windows.h>
+#include "globals.hpp"
 
 // --------------------------------------------------------------------
 
@@ -11,7 +12,9 @@ DllMain( HINSTANCE hInst , DWORD dwReason , LPVOID lpReserved )
             // initialize the DLL
             break ; 
         case DLL_PROCESS_DETACH:
-            // clean up 
+            // make sure that everything was closed properly
+            assert( ghInterceptionDll == NULL ) ;
+            assert( gpCallbackFn == NULL ) ;
             break ; 
         default:
             break ;

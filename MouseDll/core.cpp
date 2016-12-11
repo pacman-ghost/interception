@@ -8,6 +8,9 @@ using namespace std ;
 void
 openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig )
 {
+    assert( pCallbackFn != NULL ) ;
+    assert( pDebugConfig != NULL ) ;
+
     // check if we are open
     if ( ghInterceptionDll != NULL )
         throw runtime_error( "API is already open." ) ;
@@ -65,29 +68,17 @@ reloadConfig(
     const ApiAction* pActions , int nActions
 )
 {
-    // validate the parameters
-    if ( pAppConfig == NULL )
-        throw runtime_error( "Missing AppConfig." ) ;
-    if ( pDevices == NULL )
-        throw runtime_error( "Missing Device's." ) ;
-    if ( nDevices < 0 )
-        throw runtime_error( "Invalid Device count." ) ;
-    if ( pDeviceConfigs == NULL )
-        throw runtime_error( "Missing DeviceConfig's." ) ;
-    if ( nDeviceConfigs < 0 )
-        throw runtime_error( "Invalid DeviceConfig count." ) ;
-    if ( pAppProfiles == NULL )
-        throw runtime_error( "Missing AppProfile's." ) ;
-    if ( nAppProfiles < 0 )
-        throw runtime_error( "Invalid AppProfile count." ) ;
-    if ( pEvents == NULL )
-        throw runtime_error( "Missing Event's." ) ;
-    if ( nEvents < 0 )
-        throw runtime_error( "Invalid Event count." ) ;
-    if ( pActions == NULL )
-        throw runtime_error( "Missing Action's." ) ;
-    if ( nActions < 0 )
-        throw runtime_error( "Invalid Action count." ) ;
+    assert( pAppConfig != NULL ) ;
+    assert( pDevices != NULL ) ;
+    assert( nDevices >= 0 ) ;
+    assert( pDeviceConfigs != NULL ) ;
+    assert( nDeviceConfigs >= 0 ) ;
+    assert( pAppProfiles != NULL ) ;
+    assert( nAppProfiles >= 0 ) ;
+    assert( pEvents != NULL ) ;
+    assert( nEvents >= 0 ) ;
+    assert( pActions != NULL ) ;
+    assert( nActions >= 0 ) ;
 
     // load the Device's
     gDeviceTable.deleteAll() ;
@@ -152,9 +143,7 @@ reloadConfig(
 void
 reloadDebugConfig( const ApiDebugConfig* pDebugConfig )
 {
-    // validate the parameters
-    if ( pDebugConfig == NULL )
-        throw runtime_error( "Missing DebugConfig." ) ;
+    assert( pDebugConfig != NULL ) ;
 
     // initialize the log file
     const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;
