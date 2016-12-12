@@ -44,6 +44,8 @@ namespace MouseInterception
         [return: MarshalAs(UnmanagedType.BStr)]
         private static extern string run_main_loop( out int pExitFlag ) ;
 
+        private bool mIsLoaded = false ;
+
         public MouseDll( callbackDelegate cbDeleg )
         {
             // open the mouse API
@@ -51,15 +53,19 @@ namespace MouseInterception
             string errorMsg = open_api( cbDeleg , ref debugSettings ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
+            mIsLoaded = true ;
             reloadConfig() ;
         }
 
         ~MouseDll()
         {
             // close the mouse API
-            string errorMsg = close_api() ;
-            if ( errorMsg != null )
-                throw new Exception( errorMsg ) ;
+            if ( mIsLoaded )
+            {
+                string errorMsg = close_api() ;
+                if ( errorMsg != null )
+                    throw new Exception( errorMsg ) ;
+            }
         }
 
         public void reloadConfig()
