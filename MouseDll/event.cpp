@@ -38,8 +38,7 @@ Event::dumpEvent( ostream& os , const char* pPrefix ) const
 ostream&
 operator<<( ostream& os , const Event& evt )
 {
-    static EnumStringInfo stringTable[] =
-    {
+    static EnumStringInfo stringTable[] = {
         { Event::etMouseLeft , "mouseLeft" } ,
         { Event::etMouseRight , "mouseRight" } ,
         { Event::etMouseUp , "mouseUp" } ,

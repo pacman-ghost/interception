@@ -21,6 +21,16 @@ static void doRunMainLoop( int* pExitFlag ) ;
 static bool detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pMagnitude ) ;
 static bool findDevice( InterceptionDevice hDevice , Device** ppDevice , DeviceConfig** ppDeviceConfig ) ;
 
+// --- LOCAL DATA ------------------------------------------------------
+
+enum eStrokeType { stMouseMove , stMouseWheel , stMouseHorzWheel } ;
+static EnumStringInfo gStrokeTypeStringTable[] = {
+    { stMouseMove , "MOVE" } ,
+    { stMouseWheel , "WHEEL" } ,
+    { stMouseHorzWheel , "H-WHEEL" } ,
+    { -1 , NULL }
+} ;
+
 // ---------------------------------------------------------------------
 
 void
@@ -76,7 +86,7 @@ doRunMainLoop( int* pExitFlag )
     ) ;
 
     // run the main loop
-    MouseStrokeHistoryTable strokeHistoryTable ;
+    MouseStrokeHistoryTable mouseMovesHistoryTable ;
     for ( ; ; )
     {
         // wait for the next event
@@ -99,6 +109,13 @@ doRunMainLoop( int* pExitFlag )
         // get the event
         InterceptionMouseStroke* pStroke = (InterceptionMouseStroke*) &stroke ;
         DWORD strokeTimestamp = GetTickCount() ;
+        eStrokeType strokeType ;
+        if ( pStroke->state & INTERCEPTION_MOUSE_WHEEL )
+            strokeType = stMouseWheel ;
+        else if ( pStroke->state & INTERCEPTION_MOUSE_HWHEEL )
+            strokeType = stMouseHorzWheel ;
+        else
+            strokeType = stMouseMove ;
         int keyModifiers = 0 ;
         if ( GetAsyncKeyState(VK_CONTROL) < 0 )
             keyModifiers |= Event::kmCtrl ;
@@ -113,15 +130,9 @@ doRunMainLoop( int* pExitFlag )
             stringstream buf ;
             if ( keyModifiers != 0 )
                 buf << " " << Event::keyModifiersString(keyModifiers) << " ;" ;
-            const char* pEventType ;
-            if ( pStroke->state & INTERCEPTION_MOUSE_WHEEL )
-                pEventType = "WHEEL" ;
-            else if ( pStroke->state & INTERCEPTION_MOUSE_HWHEEL )
-                pEventType = "HWHEEL" ;
-            else
-                pEventType = "MOVE" ;
             LOG_MSG(
-                pEventType << ":" << buf.str() << " hDevice=" << hDevice 
+                enumString(gStrokeTypeStringTable,strokeType) << ": " << buf.str()
+                << " hDevice=" << hDevice 
 			    << " ; state=0x" << hexString(pStroke->state)
 			    << " ; flags=0x" << hexString(pStroke->flags)
 			    << " ; rolling=" << pStroke->rolling
@@ -161,24 +172,26 @@ doRunMainLoop( int* pExitFlag )
         }
 
         // record the stroke
-        // FIXME! only record mouse moves
-        MouseStrokeHistory* pStrokeHistory = & strokeHistoryTable[hDevice] ;
-        int strokeHistoryResetInterval = pDeviceConfig->strokeHistoryResetInterval() ;
-        if ( strokeHistoryResetInterval <= 0 )
-            strokeHistoryResetInterval = DEFAULT_STROKE_HISTORY_RESET_INTERVAL ;
-        if ( ! pStrokeHistory->empty() && (int)(strokeTimestamp-pStrokeHistory->back().first) >= strokeHistoryResetInterval )
+        if ( strokeType == stMouseMove )
         {
-            // we haven't seen a move event for a while - reset the history
-            pStrokeHistory->clear() ;
-        }
-        pStrokeHistory->push_back( make_pair( strokeTimestamp , *pStroke ) ) ;
-        while ( pStrokeHistory->size() > MAX_STROKE_HISTORY )
-            pStrokeHistory->pop_front() ;
+            MouseStrokeHistory* pStrokeHistory = & mouseMovesHistoryTable[hDevice] ;
+            int strokeHistoryResetInterval = pDeviceConfig->strokeHistoryResetInterval() ;
+            if ( strokeHistoryResetInterval <= 0 )
+                strokeHistoryResetInterval = DEFAULT_STROKE_HISTORY_RESET_INTERVAL ;
+            if ( ! pStrokeHistory->empty() && (int)(strokeTimestamp-pStrokeHistory->back().first) >= strokeHistoryResetInterval )
+            {
+                // we haven't seen a move event for a while - reset the history
+                pStrokeHistory->clear() ;
+            }
+            pStrokeHistory->push_back( make_pair( strokeTimestamp , *pStroke ) ) ;
+            while ( pStrokeHistory->size() > MAX_STROKE_HISTORY )
+                pStrokeHistory->pop_front() ;
 
-        // figure out which way the mouse is moving
-        eDirn dirn ;
-        int dirnMagnitude ;
-        (void) detectDirn( pStrokeHistory , &dirn , &dirnMagnitude ) ;
+            // figure out which way the mouse is moving
+            eDirn dirn ;
+            int dirnMagnitude ;
+            (void) detectDirn( pStrokeHistory , &dirn , &dirnMagnitude ) ;
+        }
 
         // FIXME! handle the event
         interception_send( hContext , hDevice ,&stroke , 1 ) ;

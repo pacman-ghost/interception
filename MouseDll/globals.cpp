@@ -94,8 +94,7 @@ makeLogMsg( const string& msg )
 string toString( eDirn dirn )
 {
     // return the eDirn as a string
-    static EnumStringInfo stringTable[] =
-    {
+    static EnumStringInfo stringTable[] = {
         { dUnknown , "UNKNOWN" } ,
         { dLeft , "LEFT" } ,
         { dRight , "RIGHT" } ,
