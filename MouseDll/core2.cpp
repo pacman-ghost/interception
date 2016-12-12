@@ -116,6 +116,7 @@ doRunMainLoop( int* pExitFlag )
             strokeType = stMouseHorzWheel ;
         else
             strokeType = stMouseMove ;
+        string strokeTypeString = enumString( gStrokeTypeStringTable , strokeType ) ;
         int keyModifiers = 0 ;
         if ( GetAsyncKeyState(VK_CONTROL) < 0 )
             keyModifiers |= Event::kmCtrl ;
@@ -127,11 +128,11 @@ doRunMainLoop( int* pExitFlag )
         // log the raw event
         if ( isLoggingEnabled( "rawEvents" ) )
         {
-            stringstream buf ;
+            string keyModifiersString ;
             if ( keyModifiers != 0 )
-                buf << " " << Event::keyModifiersString(keyModifiers) << " ;" ;
+                keyModifiersString = MAKE_STRING( " " << Event::keyModifiersString(keyModifiers) << " ;" ) ;
             LOG_MSG(
-                enumString(gStrokeTypeStringTable,strokeType) << ": " << buf.str()
+                strokeTypeString << ": " << keyModifiersString
                 << " hDevice=" << hDevice 
 			    << " ; state=0x" << hexString(pStroke->state)
 			    << " ; flags=0x" << hexString(pStroke->flags)
@@ -158,7 +159,7 @@ doRunMainLoop( int* pExitFlag )
                 gUnknownDevices.insert( hDevice ) ;
             }
 
-            // forward the event on (for normal processing)
+            // forward the event (for normal processing)
             interception_send( hContext , hDevice ,&stroke , 1 ) ;
             continue ;
         }
@@ -171,9 +172,10 @@ doRunMainLoop( int* pExitFlag )
             continue ;
         }
 
-        // record the stroke
+        // handle the event
         if ( strokeType == stMouseMove )
         {
+            // record the stroke
             MouseStrokeHistory* pStrokeHistory = & mouseMovesHistoryTable[hDevice] ;
             int strokeHistoryResetInterval = pDeviceConfig->strokeHistoryResetInterval() ;
             if ( strokeHistoryResetInterval <= 0 )
@@ -189,11 +191,26 @@ doRunMainLoop( int* pExitFlag )
 
             // figure out which way the mouse is moving
             eDirn dirn ;
-            int dirnMagnitude ;
-            (void) detectDirn( pStrokeHistory , &dirn , &dirnMagnitude ) ;
+            int dirnMagnitude ; // FIXME! scale this value?
+            if ( detectDirn( pStrokeHistory , &dirn , &dirnMagnitude ) )
+                LOG_CMSG( "events" , strokeTypeString << ": dirn=" << toString(dirn) << "/" << dirnMagnitude )
         }
+        else if ( strokeType == stMouseWheel )
+        {
+            eDirn dirn = (pStroke->rolling) < 0 ? dDown : dUp ;
+            int wheelSize = abs( pStroke->rolling ) ; // FIXME! scale this value?
+            LOG_CMSG( "events" , strokeTypeString << ": dirn=" << toString(dirn) << "/" << wheelSize ) ;
+        }
+        else if ( strokeType == stMouseHorzWheel )
+        {
+            eDirn dirn = (pStroke->rolling) < 0 ? dLeft : dRight ;
+            int wheelSize = abs( pStroke->rolling ) ; // FIXME! scale this value?
+            LOG_CMSG( "events" , strokeTypeString << ": dirn=" << toString(dirn) << "/" << wheelSize ) ;
+        }
+        else
+            assert( false ) ;
 
-        // FIXME! handle the event
+        // the event wasn't handled - forward the event (for normal processing)
         interception_send( hContext , hDevice ,&stroke , 1 ) ;
     }
 
@@ -211,21 +228,17 @@ detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pDirn
 {
     // check if we have enough stroke history
     if ( pStrokeHistory->size() < DIRN_DETECT_WINDOW_SIZE )
-    {
-        LOG_CMSG( "dirnDetect" , "DIRN DETECT: #=" << pStrokeHistory->size() << " ; dirn=" << toString(dUnknown) ) ;
         return false ;
-    }
 
     // figure out which direction the mouse is moving in
-    // FIXME! limit to left/right for h-wheel
-    LOG_CMSG( "dirnDetect2" , "DIRN DETECT: #=" << DIRN_DETECT_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
+    LOG_CMSG( "dirnDetect" , "DIRN DETECT: #=" << DIRN_DETECT_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
     int cumX=0 , cumY=0 , nStrokes=0 ;
     for ( MouseStrokeHistory::const_reverse_iterator it=pStrokeHistory->rbegin() ; it != pStrokeHistory->rend() ; ++it )
     {
         const InterceptionMouseStroke& stroke = (*it).second ;
         cumX += stroke.x ;
         cumY += stroke.y ; 
-        LOG_CMSG( "dirnDetect2" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
+        LOG_CMSG( "dirnDetect" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
         if ( ++nStrokes >= DIRN_DETECT_WINDOW_SIZE )
             break ;
     }
@@ -234,18 +247,18 @@ detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pDirn
     if ( abs(biasedCumX) >= abs(cumY) )
     {
         *pDirn = biasedCumX < 0 ? dLeft : dRight ;
-        *pDirnMagnitude = biasedCumX / nStrokes ;
+        *pDirnMagnitude = abs( biasedCumX / nStrokes ) ;
     }
     else
     {
         *pDirn = cumY < 0 ? dUp : dDown ;
-        *pDirnMagnitude = cumY / nStrokes ;
+        *pDirnMagnitude = abs( cumY / nStrokes ) ;
     }
     LOG_CMSG( "dirnDetect" ,
-        "DIRN DETECT: #=" << DIRN_DETECT_WINDOW_SIZE << "/" << pStrokeHistory->size()
-        << " ; cumX=" << biasedCumX << "(" << cumX << ") ; cumY=" << cumY
+        "  cumX=" << biasedCumX << "(" << cumX << ") ; cumY=" << cumY
         << " ; dirn=" << toString(*pDirn) << "/" << *pDirnMagnitude
     ) ;
+
     return true ;
 }
 
