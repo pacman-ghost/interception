@@ -14,11 +14,14 @@ DeviceConfig::DeviceConfig(
 {
     // initialize the DeviceConfig
     mDeviceId = pDeviceConfig->mDeviceId ;
+    mStrokeHistoryResetInterval = pDeviceConfig->mStrokeHistoryResetInterval ;
+
+    // initialize the DeviceConfig
     for ( int i=0 ; i < nAppProfiles ; ++i )
     {
         const ApiAppProfile* pAppProfile = pAppProfiles + i ;
         // validate the Event index/count
-        if ( pAppProfile->mEventStartIndex < 0 || pAppProfile->mEventStartIndex >= nEvents )
+        if ( pAppProfile->mEventStartIndex < 0 || (pAppProfile->mEventStartIndex > 0 && pAppProfile->mEventStartIndex >= nEvents) )
         {
             throw runtime_error(
                 MAKE_STRING(
@@ -57,6 +60,7 @@ DeviceConfig::dumpDeviceConfig( ostream& os , const char* pPrefix ) const
         pPrefix = "" ;
     os << pPrefix << *this << ":" << endl ;
     os << pPrefix << "  deviceId = " << deviceId() << endl ;
+    os << pPrefix << "  strokeHistoryResetInterval = " << strokeHistoryResetInterval() << endl ;
     for ( AppProfilePtrVector::const_iterator it=appProfiles().begin() ; it != appProfiles().end() ; ++it )
         (*it)->dumpAppProfile( os , MAKE_CSTRING(pPrefix << "    ") ) ;
 }
@@ -74,4 +78,5 @@ operator<<( ostream& os , const DeviceConfig& deviceConfig )
 // ---------------------------------------------------------------------
 
 int DeviceConfig::deviceId() const { return mDeviceId ; }
+const int DeviceConfig::strokeHistoryResetInterval() const { return mStrokeHistoryResetInterval ; }
 const AppProfilePtrVector& DeviceConfig::appProfiles() const { return mAppProfiles ; }

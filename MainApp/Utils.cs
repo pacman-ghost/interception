@@ -11,20 +11,50 @@ namespace MouseInterception
         public static string getXmlChildVal( XmlNode xmlNode , string childNodeName , string defaultVal )
         {
             // get the child node's value
-            XmlNode childNode = xmlNode.SelectSingleNode( childNodeName ) ;
-            if ( childNode != null )
-                return childNode.InnerText.Trim() ;
-            return defaultVal ;
+            string val = getOptStringXmlChildVal( xmlNode , childNodeName ) ;
+            return (val != null) ? val : defaultVal ;
         }
         public static string getXmlChildVal( XmlNode xn , string s ) { return getXmlChildVal(xn,s,"") ; }
+
+        public static int getXmlChildVal( XmlNode xmlNode , string childNodeName , int defaultVal )
+        {
+            // get the child node's value
+            int? val = getOptIntXmlChildVal( xmlNode , childNodeName ) ;
+            return (val != null) ? (int)val : defaultVal ;
+        }
 
         public static bool getXmlChildVal( XmlNode xmlNode , string childNodeName , bool defaultVal )
         {
             // get the child node's value
-            string val = getXmlChildVal( xmlNode , childNodeName , null ) ;
-            if ( val != null )
-                return Boolean.Parse( val ) ;
-            return defaultVal ;
+            bool? val = getOptBoolXmlChildVal( xmlNode , childNodeName ) ;
+            return (val != null) ? (bool)val : defaultVal ;
+        }
+
+        public static string getOptStringXmlChildVal( XmlNode xmlNode , string childNodeName )
+        {
+            // get the child node's value
+            XmlNode childNode = xmlNode.SelectSingleNode( childNodeName ) ;
+            if ( childNode != null )
+                return childNode.InnerText ;
+            return null ;
+        }
+
+        public static int? getOptIntXmlChildVal( XmlNode xmlNode , string childNodeName )
+        {
+            // get the child node's value
+            XmlNode childNode = xmlNode.SelectSingleNode( childNodeName ) ;
+            if ( childNode != null )
+                return Int32.Parse( childNode.InnerText ) ;
+            return null ;
+        }
+
+        public static bool? getOptBoolXmlChildVal( XmlNode xmlNode , string childNodeName )
+        {
+            // get the child node's value
+            XmlNode childNode = xmlNode.SelectSingleNode( childNodeName ) ;
+            if ( childNode != null )
+                return Boolean.Parse( childNode.InnerText ) ;
+            return null ;
         }
 
         public static string getXmlAttr( XmlNode xmlNode , string attrName , string defaultVal )

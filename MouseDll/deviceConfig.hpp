@@ -24,6 +24,7 @@ public:
 // access methods:
 public:
     int deviceId() const ;
+    const int strokeHistoryResetInterval() const ;
     const AppProfilePtrVector& appProfiles() const ;
 
 // miscellaneous methods:
@@ -33,6 +34,7 @@ public:
 // data members:
 private:
     int mDeviceId ;
+    int mStrokeHistoryResetInterval ;
     AppProfilePtrVector mAppProfiles ;
 
 } ;

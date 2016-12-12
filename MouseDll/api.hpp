@@ -21,6 +21,7 @@ struct ApiDevice
 struct ApiDeviceConfig
 {
     int mDeviceId ;
+    int mStrokeHistoryResetInterval ;
     int mAppProfileStartIndex ;
     int mAppProfileCount ;
 } ;

@@ -51,6 +51,7 @@ namespace MouseInterception
         public struct ApiDeviceConfig
         {
             public int mDeviceId ;
+            public int mStrokeHistoryResetInterval ;
             public int mAppProfileStartIndex ;
             public int mAppProfileCount ;
         }
@@ -148,6 +149,7 @@ namespace MouseInterception
             {
                 ApiDeviceConfig deviceConfig = new ApiDeviceConfig() ;
                 deviceConfig.mDeviceId = Int32.Parse( deviceConfigXmlNode.Attributes["id"].Value ) ;
+                deviceConfig.mStrokeHistoryResetInterval = Utils.getXmlChildVal( deviceConfigXmlNode , "strokeHistoryResetInterval" , -1 ) ;
                 deviceConfig.mAppProfileStartIndex = appProfiles.Count ;
                 deviceConfig.mAppProfileCount = 0 ;
                 // parse the app profiles

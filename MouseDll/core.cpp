@@ -103,7 +103,7 @@ reloadConfig(
     {
         const ApiDeviceConfig* pDeviceConfig = pDeviceConfigs + i ;
         // validate the AppProfile index/count
-        if ( pDeviceConfig->mAppProfileStartIndex < 0 || pDeviceConfig->mAppProfileStartIndex >= nAppProfiles )
+        if ( pDeviceConfig->mAppProfileStartIndex < 0 || (pDeviceConfig->mAppProfileStartIndex > 0 && pDeviceConfig->mAppProfileStartIndex >= nAppProfiles) )
         {
             throw runtime_error(
                 MAKE_STRING(

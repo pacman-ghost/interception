@@ -4,19 +4,22 @@
 
 using namespace std ;
 
-typedef deque<InterceptionMouseStroke> InterceptionMouseStrokeDeque ;
-typedef map< InterceptionDevice , InterceptionMouseStrokeDeque > InterceptionMouseStrokeHistory ;
+typedef pair< DWORD , InterceptionMouseStroke > TimestampMouseStrokePair ;
+typedef deque<TimestampMouseStrokePair> MouseStrokeHistory ;
+typedef map< InterceptionDevice , MouseStrokeHistory > MouseStrokeHistoryTable ;
 
 // --- LOCAL DATA ------------------------------------------------------
 
 #define MAX_STROKE_HISTORY 20
+#define DEFAULT_STROKE_HISTORY_RESET_INTERVAL 100 // milliseconds
+
 #define DIRN_DETECT_WINDOW_SIZE 10
 #define DIRN_DETECT_HORZ_BIAS 1.2 // FIXME! s.b. configurable
 
 // local functions:
 static void doRunMainLoop( int* pExitFlag ) ;
-static bool detectDirn( const InterceptionMouseStrokeDeque* pStrokeHistory , eDirn* pDirn , int* pMagnitude ) ;
-static bool findDevice( InterceptionDevice hDevice , Device** ppDevice ) ;
+static bool detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pMagnitude ) ;
+static bool findDevice( InterceptionDevice hDevice , Device** ppDevice , DeviceConfig** ppDeviceConfig ) ;
 
 // ---------------------------------------------------------------------
 
@@ -72,13 +75,12 @@ doRunMainLoop( int* pExitFlag )
         INTERCEPTION_FILTER_MOUSE_MOVE | INTERCEPTION_FILTER_MOUSE_WHEEL | INTERCEPTION_FILTER_MOUSE_HWHEEL
     ) ;
 
-    // initialize
-    InterceptionMouseStrokeHistory strokeHistory ;
-
     // run the main loop
+    MouseStrokeHistoryTable strokeHistoryTable ;
     for ( ; ; )
     {
         // wait for the next event
+        // NOTE: If the driver is not installed, this will return immediately :-/
         InterceptionDevice hDevice = interception_wait_with_timeout( hContext , 200 ) ;
         if ( hDevice == NULL )
         {
@@ -96,6 +98,7 @@ doRunMainLoop( int* pExitFlag )
 
         // get the event
         InterceptionMouseStroke* pStroke = (InterceptionMouseStroke*) &stroke ;
+        DWORD strokeTimestamp = GetTickCount() ;
         int keyModifiers = 0 ;
         if ( GetAsyncKeyState(VK_CONTROL) < 0 )
             keyModifiers |= Event::kmCtrl ;
@@ -130,7 +133,8 @@ doRunMainLoop( int* pExitFlag )
 
         // find the device that generated the event
         Device* pDevice ;
-        if ( ! findDevice( hDevice , &pDevice ) )
+        DeviceConfig* pDeviceConfig ;
+        if ( ! findDevice( hDevice , &pDevice , &pDeviceConfig ) )
         {
             // can't find the the device - check if we've seen it before
             if ( gUnknownDevices.find( hDevice ) == gUnknownDevices.end() )
@@ -157,8 +161,17 @@ doRunMainLoop( int* pExitFlag )
         }
 
         // record the stroke
-        InterceptionMouseStrokeDeque* pStrokeHistory = & strokeHistory[hDevice] ;
-        pStrokeHistory->push_back( *pStroke ) ;
+        // FIXME! only record mouse moves
+        MouseStrokeHistory* pStrokeHistory = & strokeHistoryTable[hDevice] ;
+        int strokeHistoryResetInterval = pDeviceConfig->strokeHistoryResetInterval() ;
+        if ( strokeHistoryResetInterval <= 0 )
+            strokeHistoryResetInterval = DEFAULT_STROKE_HISTORY_RESET_INTERVAL ;
+        if ( ! pStrokeHistory->empty() && (int)(strokeTimestamp-pStrokeHistory->back().first) >= strokeHistoryResetInterval )
+        {
+            // we haven't seen a move event for a while - reset the history
+            pStrokeHistory->clear() ;
+        }
+        pStrokeHistory->push_back( make_pair( strokeTimestamp , *pStroke ) ) ;
         while ( pStrokeHistory->size() > MAX_STROKE_HISTORY )
             pStrokeHistory->pop_front() ;
 
@@ -181,7 +194,7 @@ doRunMainLoop( int* pExitFlag )
 // ---------------------------------------------------------------------
 
 static bool
-detectDirn( const InterceptionMouseStrokeDeque* pStrokeHistory , eDirn* pDirn , int* pDirnMagnitude )
+detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pDirnMagnitude )
 {
     // check if we have enough stroke history
     if ( pStrokeHistory->size() < DIRN_DETECT_WINDOW_SIZE )
@@ -194,12 +207,12 @@ detectDirn( const InterceptionMouseStrokeDeque* pStrokeHistory , eDirn* pDirn , 
     // FIXME! limit to left/right for h-wheel
     LOG_CMSG( "dirnDetect2" , "DIRN DETECT: #=" << DIRN_DETECT_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
     int cumX=0 , cumY=0 , nStrokes=0 ;
-    for ( InterceptionMouseStrokeDeque::const_reverse_iterator it=pStrokeHistory->rbegin() ; it != pStrokeHistory->rend() ; ++it )
+    for ( MouseStrokeHistory::const_reverse_iterator it=pStrokeHistory->rbegin() ; it != pStrokeHistory->rend() ; ++it )
     {
-        const InterceptionMouseStroke& stroke = *it ;
-        cumX += (*it).x ;
-        cumY += (*it).y ; 
-        LOG_CMSG( "dirnDetect2" , "  x=" << (*it).x << " ; y=" << (*it).y << " ; cum=" << cumX << "/" << cumY ) ;
+        const InterceptionMouseStroke& stroke = (*it).second ;
+        cumX += stroke.x ;
+        cumY += stroke.y ; 
+        LOG_CMSG( "dirnDetect2" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
         if ( ++nStrokes >= DIRN_DETECT_WINDOW_SIZE )
             break ;
     }
@@ -226,7 +239,7 @@ detectDirn( const InterceptionMouseStrokeDeque* pStrokeHistory , eDirn* pDirn , 
 // ---------------------------------------------------------------------
 
 static bool
-findDevice( InterceptionDevice hDevice , Device** ppDevice )
+findDevice( InterceptionDevice hDevice , Device** ppDevice , DeviceConfig** ppDeviceConfig )
 {
     // find the specified device
     for( DeviceTable::iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
@@ -235,8 +248,14 @@ findDevice( InterceptionDevice hDevice , Device** ppDevice )
         // FIXME! have to check HID as well
         if ( pDevice->deviceNumber() == hDevice )
         {
-            *ppDevice = pDevice ;
-            return true ;
+            // found it - found the corresponding DeviceConfig
+            DeviceConfigTable::iterator it2 = gDeviceConfigTable.find( pDevice->deviceId() ) ;
+            if ( it2 != gDeviceConfigTable.end() )
+            {
+                *ppDevice = pDevice ;
+                *ppDeviceConfig = (*it2).second ;
+                return true ;
+            }
         }
     }
     return false ;

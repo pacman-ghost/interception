@@ -19,7 +19,7 @@ AppProfile::AppProfile(
     {
         const ApiEvent* pEvent = pEvents + i ;
         // validate the Action index/count
-        if ( pEvent->mActionStartIndex < 0 || pEvent->mActionStartIndex >= nActions )
+        if ( pEvent->mActionStartIndex < 0 || (pEvent->mActionStartIndex > 0 && pEvent->mActionStartIndex >= nActions) )
         {
             throw runtime_error(
                 MAKE_STRING(
