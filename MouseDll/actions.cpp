@@ -7,6 +7,11 @@ using namespace std ;
 
 Action::Action( const ApiAction* pAction )
 {
+    // NOTE: These relationships are not *necessary*, but let's keep things consistent.
+    assert( atMouseLeft == dLeft ) ;
+    assert( atMouseRight == dRight ) ;
+    assert( atMouseUp == dUp ) ;
+    assert( atMouseDown == dDown ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

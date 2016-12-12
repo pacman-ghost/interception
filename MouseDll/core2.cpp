@@ -1,11 +1,21 @@
+#include <deque>
+
 #include "globals.hpp"
 
 using namespace std ;
 
+typedef deque<InterceptionMouseStroke> InterceptionMouseStrokeDeque ;
+typedef map< InterceptionDevice , InterceptionMouseStrokeDeque > InterceptionMouseStrokeHistory ;
+
 // --- LOCAL DATA ------------------------------------------------------
+
+#define MAX_STROKE_HISTORY 20
+#define DIRN_DETECT_WINDOW_SIZE 10
+#define DIRN_DETECT_HORZ_BIAS 1.2 // FIXME! s.b. configurable
 
 // local functions:
 static void doRunMainLoop( int* pExitFlag ) ;
+static bool detectDirn( const InterceptionMouseStrokeDeque* pStrokeHistory , eDirn* pDirn , int* pMagnitude ) ;
 static bool findDevice( InterceptionDevice hDevice , Device** ppDevice ) ;
 
 // ---------------------------------------------------------------------
@@ -62,8 +72,10 @@ doRunMainLoop( int* pExitFlag )
         INTERCEPTION_FILTER_MOUSE_MOVE | INTERCEPTION_FILTER_MOUSE_WHEEL | INTERCEPTION_FILTER_MOUSE_HWHEEL
     ) ;
 
+    // initialize
+    InterceptionMouseStrokeHistory strokeHistory ;
+
     // run the main loop
-    InterceptionStroke stroke ;
     for ( ; ; )
     {
         // wait for the next event
@@ -75,6 +87,7 @@ doRunMainLoop( int* pExitFlag )
                 break ;
             continue ;
         }
+        InterceptionStroke stroke ;
         int nStrokes = interception_receive( hContext , hDevice , &stroke , 1 ) ;
         if ( nStrokes <= 0 )
             break ;
@@ -143,6 +156,17 @@ doRunMainLoop( int* pExitFlag )
             continue ;
         }
 
+        // record the stroke
+        InterceptionMouseStrokeDeque* pStrokeHistory = & strokeHistory[hDevice] ;
+        pStrokeHistory->push_back( *pStroke ) ;
+        while ( pStrokeHistory->size() > MAX_STROKE_HISTORY )
+            pStrokeHistory->pop_front() ;
+
+        // figure out which way the mouse is moving
+        eDirn dirn ;
+        int dirnMagnitude ;
+        (void) detectDirn( pStrokeHistory , &dirn , &dirnMagnitude ) ;
+
         // FIXME! handle the event
         interception_send( hContext , hDevice ,&stroke , 1 ) ;
     }
@@ -152,6 +176,51 @@ doRunMainLoop( int* pExitFlag )
     interception_destroy_context( hContext ) ;
 
     LOG_CMSG( "system" , "Main loop ended." ) ;
+}
+
+// ---------------------------------------------------------------------
+
+static bool
+detectDirn( const InterceptionMouseStrokeDeque* pStrokeHistory , eDirn* pDirn , int* pDirnMagnitude )
+{
+    // check if we have enough stroke history
+    if ( pStrokeHistory->size() < DIRN_DETECT_WINDOW_SIZE )
+    {
+        LOG_CMSG( "dirnDetect" , "DIRN DETECT: #=" << pStrokeHistory->size() << " ; dirn=" << toString(dUnknown) ) ;
+        return false ;
+    }
+
+    // figure out which direction the mouse is moving in
+    // FIXME! limit to left/right for h-wheel
+    LOG_CMSG( "dirnDetect2" , "DIRN DETECT: #=" << DIRN_DETECT_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
+    int cumX=0 , cumY=0 , nStrokes=0 ;
+    for ( InterceptionMouseStrokeDeque::const_reverse_iterator it=pStrokeHistory->rbegin() ; it != pStrokeHistory->rend() ; ++it )
+    {
+        const InterceptionMouseStroke& stroke = *it ;
+        cumX += (*it).x ;
+        cumY += (*it).y ; 
+        LOG_CMSG( "dirnDetect2" , "  x=" << (*it).x << " ; y=" << (*it).y << " ; cum=" << cumX << "/" << cumY ) ;
+        if ( ++nStrokes >= DIRN_DETECT_WINDOW_SIZE )
+            break ;
+    }
+    // NOTE: It's easier to move a device up/down without drifting left/right, so we bias left/right detection.
+    int biasedCumX = (int)(1000*cumX * DIRN_DETECT_HORZ_BIAS) / 1000 ;
+    if ( abs(biasedCumX) >= abs(cumY) )
+    {
+        *pDirn = biasedCumX < 0 ? dLeft : dRight ;
+        *pDirnMagnitude = biasedCumX / nStrokes ;
+    }
+    else
+    {
+        *pDirn = cumY < 0 ? dUp : dDown ;
+        *pDirnMagnitude = cumY / nStrokes ;
+    }
+    LOG_CMSG( "dirnDetect" ,
+        "DIRN DETECT: #=" << DIRN_DETECT_WINDOW_SIZE << "/" << pStrokeHistory->size()
+        << " ; cumX=" << biasedCumX << "(" << cumX << ") ; cumY=" << cumY
+        << " ; dirn=" << toString(*pDirn) << "/" << *pDirnMagnitude
+    ) ;
+    return true ;
 }
 
 // ---------------------------------------------------------------------

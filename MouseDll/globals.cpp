@@ -91,6 +91,23 @@ makeLogMsg( const string& msg )
 
 // ---------------------------------------------------------------------
 
+string toString( eDirn dirn )
+{
+    // return the eDirn as a string
+    static EnumStringInfo stringTable[] =
+    {
+        { dUnknown , "UNKNOWN" } ,
+        { dLeft , "LEFT" } ,
+        { dRight , "RIGHT" } ,
+        { dUp , "UP" } ,
+        { dDown , "DOWN" } ,
+        { -1 , NULL }
+    } ;
+    return enumString( stringTable , dirn ) ;
+}
+
+// ---------------------------------------------------------------------
+
 ostream&
 operator<<( ostream& os , const exception& xcptn )
 {

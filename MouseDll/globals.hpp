@@ -20,6 +20,11 @@ typedef std::set<std::string> StringSet ;
 
 // ---------------------------------------------------------------------
 
+enum eDirn { dUnknown=-1 , dLeft=1 , dRight=2 , dUp=3 , dDown=4 } ;
+extern std::string toString( eDirn ) ;
+
+// ---------------------------------------------------------------------
+
 extern HMODULE ghInterceptionDll ;
 
 typedef IntPtrMap<Device> DeviceTable ;
