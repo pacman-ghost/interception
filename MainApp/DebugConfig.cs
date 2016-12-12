@@ -40,10 +40,9 @@ namespace MouseInterception
             if ( xmlNode != null )
                 mSettings.mLogFilename = xmlNode.InnerText.Trim() ;
             mSettings.mLogging = "" ;
-            xmlNode = debugXmlNode.SelectSingleNode( "logging" ) ;
-            if ( xmlNode != null )
+            foreach ( XmlNode xn in debugXmlNode.SelectNodes("logging") )
             {
-                foreach( XmlAttribute xa in xmlNode.Attributes )
+                foreach( XmlAttribute xa in xn.Attributes )
                 {
                     if ( Boolean.Parse( xa.Value ) )
                     {
