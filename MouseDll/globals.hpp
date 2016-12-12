@@ -44,8 +44,12 @@ extern PCALLBACKFN gpCallbackFn ;
 { \
     string _buf_ = makeLogMsg( MAKE_STRING( msg ) ) ; \
     cout << _buf_ ; \
+    cout.flush() ; \
     if ( gLogFile.is_open() ) \
+    { \
         gLogFile << _buf_ ; \
+        gLogFile.flush() ; \
+    } \
 }
 #define LOG_CMSG( c , msg ) \
 { \
