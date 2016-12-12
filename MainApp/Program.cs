@@ -38,13 +38,26 @@ namespace MouseInterception
             try
             {
                 // load the app config
-                string fname = getAppRelativePath( "config.xml" ) ; // FIXME! this s.b. in the user's AppData folder
+                string fname ;
                 if ( args.Length >= 1 )
                     fname = args[0] ;
+                else
+                {
+                    fname = getAppRelativePath( "config.xml" ) ;
+                    if ( ! File.Exists( fname ) )
+                    {
+                        fname = Path.Combine(
+                            Environment.GetFolderPath( Environment.SpecialFolder.ApplicationData ) ,
+                            System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".xml"
+                        ) ;
+                    }
+                }
                 mAppConfig = new AppConfig( fname ) ;
 
                 // load the debug config
-                fname = getAppRelativePath( "debug.xml" ) ; // FIXME! make this configurable
+                fname = Path.Combine( Path.GetDirectoryName(fname) , "debug.xml" ) ;
+                if ( ! File.Exists( fname ) )
+                    fname = getAppRelativePath( System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".debug.xml" ) ;
                 mDebugConfig = new DebugConfig( fname ) ;
 
                 // initialize
