@@ -18,6 +18,8 @@ namespace MouseInterception
         // alignment issues. It's safer to send through a separate array for each type of struct, and then
         // elements specify which ones they want via a start index and item count. Sigh...
 
+        public enum KeyModifiers { ctrl=0x0001 , alt=0x0002 , shift=0x0004 }
+
         // --- SETTINGS: application settings ---
         [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]
         public struct ApiSettings
@@ -56,6 +58,8 @@ namespace MouseInterception
         public struct ApiAppProfile
         {
             public string mApp ;
+            public int mSensitivityX ;
+            public int mSensitivityY ;
             public int mEventStartIndex ;
             public int mEventCount ;
         }
@@ -66,8 +70,10 @@ namespace MouseInterception
         [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]
         public struct ApiEvent
         {
-            public enum EventType { mouseLeft=1 , mouseRight=2 , mouseUp=3 , mouseDown=4 }
-            public enum KeyModifiers { ctrl=0x0001 , alt=0x0002 , shift=0x0004 }
+            public enum EventType {
+                mouseLeft=1 , mouseRight=2 , mouseUp=3 , mouseDown=4 ,
+                wheelLeft=5 , wheelRight=6 , wheelUp=7 , wheelDown=8
+            }
             public int mEventType ;
             public int mKeyModifiers ;
             public int mActionStartIndex ;
@@ -80,8 +86,12 @@ namespace MouseInterception
         [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]
         public struct ApiAction
         {
-            public enum ActionType { mouseLeft=1 , mouseRight=2 , mouseUp=3 , mouseDown=4 }
+            public enum ActionType {
+                mouseLeft=1 , mouseRight=2 , mouseUp=3 , mouseDown=4 ,
+                wheelLeft=5 , wheelRight=6 , wheelUp=7 , wheelDown=8
+            }
             public int mActionType ;
+            public int mKeyModifiers ;
         }
         public ApiAction[] mActions ;
         public ApiAction[] actions { get { return mActions ; } }
@@ -142,7 +152,13 @@ namespace MouseInterception
                 foreach( XmlNode appProfileXmlNode in deviceConfigXmlNode.SelectNodes("appProfile") )
                 {
                     ApiAppProfile appProfile = new ApiAppProfile() ;
-                    appProfile.mApp = Utils.getXmlAttr( appProfileXmlNode , "app" ) ;
+                    appProfile.mApp = Utils.getXmlAttr( appProfileXmlNode , "app" , "" ) ;
+                    XmlNode xn = appProfileXmlNode.SelectSingleNode( "sensitivity" ) ;
+                    if ( xn != null )
+                    {
+                        appProfile.mSensitivityX = Utils.getXmlAttr( xn , "x" , 0 ) ;
+                        appProfile.mSensitivityY = Utils.getXmlAttr( xn , "y" , 0 ) ;
+                    }
                     appProfile.mEventStartIndex = events.Count ;
                     appProfile.mEventCount = 0 ;
                     // parse the events
@@ -150,13 +166,7 @@ namespace MouseInterception
                     {
                         ApiEvent evt = new ApiEvent() ;
                         evt.mEventType = (int) Enum.Parse( typeof(ApiEvent.EventType) , eventXmlNode.Attributes["type"].Value , true ) ;
-                        evt.mKeyModifiers = 0 ;
-                        foreach( string km in Enum.GetNames(typeof(ApiEvent.KeyModifiers)) )
-                        {
-                            bool? keyState = Utils.getKeyState( eventXmlNode , km ) ;
-                            if ( keyState.HasValue && (bool)keyState )
-                                evt.mKeyModifiers += (int) Enum.Parse( typeof(ApiEvent.KeyModifiers) , km , true ) ;
-                        }
+                        evt.mKeyModifiers = getXmlNodeKeyModifiers( eventXmlNode ) ;
                         // parse the actions
                         evt.mActionStartIndex = actions.Count ;
                         evt.mActionCount = 0 ;
@@ -164,6 +174,7 @@ namespace MouseInterception
                         {
                             ApiAction action = new ApiAction() ;
                             action.mActionType = (int) Enum.Parse( typeof(ApiAction.ActionType) , actionXmlNode.Attributes["type"].Value , true ) ;
+                            action.mKeyModifiers = getXmlNodeKeyModifiers( actionXmlNode ) ;
                             actions.Add( action ) ;
                             evt.mActionCount ++ ;
                         }
@@ -181,6 +192,19 @@ namespace MouseInterception
             mAppProfiles = appProfiles.ToArray() ;
             mEvents = events.ToArray() ;
             mActions = actions.ToArray() ;
+        }
+
+        private static int getXmlNodeKeyModifiers( XmlNode xmlNode )
+        {
+            // get the key modifiers
+            int keyModifiers = 0 ;
+            foreach( string km in Enum.GetNames(typeof(KeyModifiers)) )
+            {
+                bool? keyState = Utils.getKeyState( xmlNode , km ) ;
+                if ( keyState.HasValue && (bool)keyState )
+                    keyModifiers += (int) Enum.Parse( typeof(KeyModifiers) , km , true ) ;
+            }
+            return keyModifiers ;
         }
 
     }

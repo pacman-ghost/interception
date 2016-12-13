@@ -22,7 +22,12 @@ public:
 // access methods:
 public:
     const std::string& app() const ;
+    int sensitivity( Event::eEventType eventType ) const ;
+    int sensitivityX() const ;
+    int sensitivityY() const ;
     const EventPtrVector& events() const ;
+public:
+    const Event* findEvent( Event::eEventType eventType , int keyModifiers ) const ;
 
 // miscellaneous methods:
 public:
@@ -31,6 +36,8 @@ public:
 // data members:
 private:
     std::string mApp ;
+    int mSensitivityX ;
+    int mSensitivityY ;
     EventPtrVector mEvents ;
 } ;
 

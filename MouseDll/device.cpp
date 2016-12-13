@@ -17,6 +17,14 @@ Device::Device( const ApiDevice* pDevice )
 
 // ---------------------------------------------------------------------
 
+int Device::deviceId() const { return mDeviceId ; }
+const string& Device::hid() const { return mHID ; }
+int Device::deviceNumber() const { return mDeviceNumber ; }
+const string& Device::displayName() const { return mDisplayName ; }
+bool Device::isEnabled() const { return mIsEnabled ; }
+
+// ---------------------------------------------------------------------
+
 void
 Device::dumpDevice( ostream& os , const char* pPrefix ) const
 {
@@ -39,11 +47,3 @@ operator<<( ostream& os , const Device& device )
     os << "[Device-" << device.deviceId() << ":" << device.hid() << "/" << device.deviceNumber() << "]" ;
     return os ;
 }
-
-// ---------------------------------------------------------------------
-
-int Device::deviceId() const { return mDeviceId ; }
-const string& Device::hid() const { return mHID ; }
-int Device::deviceNumber() const { return mDeviceNumber ; }
-const string& Device::displayName() const { return mDisplayName ; }
-bool Device::isEnabled() const { return mIsEnabled ; }

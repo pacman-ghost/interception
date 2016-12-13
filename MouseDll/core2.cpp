@@ -1,6 +1,9 @@
+#include <windows.h>
+#include <psapi.h>
 #include <deque>
 
 #include "globals.hpp"
+#include "sendInput.hpp"
 
 using namespace std ;
 
@@ -8,18 +11,22 @@ typedef pair< DWORD , InterceptionMouseStroke > TimestampMouseStrokePair ;
 typedef deque<TimestampMouseStrokePair> MouseStrokeHistory ;
 typedef map< InterceptionDevice , MouseStrokeHistory > MouseStrokeHistoryTable ;
 
+typedef map< Event::eEventType , size_t > EventTypeSizetMap ;
+typedef map< InterceptionDevice , EventTypeSizetMap > EventCountTable ;
+
 // --- LOCAL DATA ------------------------------------------------------
 
 #define MAX_STROKE_HISTORY 20
 #define DEFAULT_STROKE_HISTORY_RESET_INTERVAL 100 // milliseconds
 
-#define DIRN_DETECT_WINDOW_SIZE 10
-#define DIRN_DETECT_HORZ_BIAS 1.2 // FIXME! s.b. configurable
+#define DETECT_MOUSE_MOVE_WINDOW_SIZE 10
+#define DETECT_MOUSE_MOVE_HORZ_BIAS 1.2 // FIXME! s.b. configurable
 
 // local functions:
 static void doRunMainLoop( int* pExitFlag ) ;
-static bool detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pMagnitude ) ;
-static bool findDevice( InterceptionDevice hDevice , Device** ppDevice , DeviceConfig** ppDeviceConfig ) ;
+static bool detectMouseMove( const MouseStrokeHistory* pStrokeHistory , Event::eEventType* pEventType , int* pMagnitude ) ;
+static bool findDevice( InterceptionDevice hDevice , const Device** ppDevice , const DeviceConfig** ppDeviceConfig ) ;
+static const AppProfile* findAppProfile( const DeviceConfig* pDeviceConfig, const AppProfile** ppDefaultAppProfile ) ;
 
 // --- LOCAL DATA ------------------------------------------------------
 
@@ -87,6 +94,7 @@ doRunMainLoop( int* pExitFlag )
 
     // run the main loop
     MouseStrokeHistoryTable mouseMovesHistoryTable ;
+    EventCountTable eventCounts ;
     for ( ; ; )
     {
         // wait for the next event
@@ -117,22 +125,16 @@ doRunMainLoop( int* pExitFlag )
         else
             strokeType = stMouseMove ;
         string strokeTypeString = enumString( gStrokeTypeStringTable , strokeType ) ;
-        int keyModifiers = 0 ;
-        if ( GetAsyncKeyState(VK_CONTROL) < 0 )
-            keyModifiers |= Event::kmCtrl ;
-        if ( GetAsyncKeyState(VK_MENU) < 0 )
-            keyModifiers |= Event::kmAlt ;
-        if ( GetAsyncKeyState(VK_SHIFT) < 0 )
-            keyModifiers |= Event::kmShift ;
+        int keyModifiers = CSendInput::getKeyboardState() ;
 
         // log the raw event
         if ( isLoggingEnabled( "rawEvents" ) )
         {
             string keyModifiersString ;
             if ( keyModifiers != 0 )
-                keyModifiersString = MAKE_STRING( " " << Event::keyModifiersString(keyModifiers) << " ;" ) ;
+                keyModifiersString = MAKE_STRING( " " << ::keyModifiersString(keyModifiers) << " ;" ) ;
             LOG_MSG(
-                strokeTypeString << ": " << keyModifiersString
+                strokeTypeString << ":" << keyModifiersString
                 << " hDevice=" << hDevice 
 			    << " ; state=0x" << hexString(pStroke->state)
 			    << " ; flags=0x" << hexString(pStroke->flags)
@@ -144,8 +146,8 @@ doRunMainLoop( int* pExitFlag )
         }
 
         // find the device that generated the event
-        Device* pDevice ;
-        DeviceConfig* pDeviceConfig ;
+        const Device* pDevice ;
+        const DeviceConfig* pDeviceConfig ;
         if ( ! findDevice( hDevice , &pDevice , &pDeviceConfig ) )
         {
             // can't find the the device - check if we've seen it before
@@ -172,7 +174,21 @@ doRunMainLoop( int* pExitFlag )
             continue ;
         }
 
-        // handle the event
+        // find the required AppProfile
+        const AppProfile* pDefaultAppProfile ;
+        const AppProfile* pAppProfile = findAppProfile( pDeviceConfig , &pDefaultAppProfile ) ;
+        if ( pAppProfile == NULL )
+            pAppProfile = pDefaultAppProfile ;
+        if ( pAppProfile == NULL )
+        {
+            // can't find one - just forward the event (for normal processing)
+            interception_send( hContext , hDevice ,&stroke , 1 ) ;
+            continue ;
+        }
+
+        // figure out what we should do
+        const Event* pEvent = NULL ;
+        void* pEventInfo = NULL ;
         if ( strokeType == stMouseMove )
         {
             // record the stroke
@@ -188,30 +204,73 @@ doRunMainLoop( int* pExitFlag )
             pStrokeHistory->push_back( make_pair( strokeTimestamp , *pStroke ) ) ;
             while ( pStrokeHistory->size() > MAX_STROKE_HISTORY )
                 pStrokeHistory->pop_front() ;
-
             // figure out which way the mouse is moving
-            eDirn dirn ;
-            int dirnMagnitude ; // FIXME! scale this value?
-            if ( detectDirn( pStrokeHistory , &dirn , &dirnMagnitude ) )
-                LOG_CMSG( "events" , strokeTypeString << ": dirn=" << toString(dirn) << "/" << dirnMagnitude )
+            Event::eEventType eventType ;
+            int magnitude ;
+            if ( detectMouseMove( pStrokeHistory , &eventType , &magnitude ) )
+                LOG_CMSG( "events" , strokeTypeString << ": " << eventType << "/" << magnitude )
+            // check if this event has been configured
+            pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
+            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
+                pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
+            // scale the movement (100 = 1 unit)
+            pEventInfo = (void*) (100 * magnitude) ;
         }
         else if ( strokeType == stMouseWheel )
         {
-            eDirn dirn = (pStroke->rolling) < 0 ? dDown : dUp ;
-            int wheelSize = abs( pStroke->rolling ) ; // FIXME! scale this value?
-            LOG_CMSG( "events" , strokeTypeString << ": dirn=" << toString(dirn) << "/" << wheelSize ) ;
+            // figure out which way the wheel is moving
+            int dirn = (pStroke->rolling) < 0 ? -1 : +1 ;
+            int wheelSize = abs( pStroke->rolling ) ;
+            LOG_CMSG( "events" , strokeTypeString << ": " << (dirn < 0?"down":"up") << "/" << wheelSize ) ;
+            // check if this event has been configured
+            Event::eEventType eventType = (dirn < 0) ? Event::etWheelDown : Event::etWheelUp ;
+            pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
+            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
+                pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
+            // scale the movement (100 = 1 unit)
+            pEventInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
         }
         else if ( strokeType == stMouseHorzWheel )
         {
-            eDirn dirn = (pStroke->rolling) < 0 ? dLeft : dRight ;
-            int wheelSize = abs( pStroke->rolling ) ; // FIXME! scale this value?
-            LOG_CMSG( "events" , strokeTypeString << ": dirn=" << toString(dirn) << "/" << wheelSize ) ;
+            // figure out which way the wheel is moving
+            int dirn = (pStroke->rolling) < 0 ? -1 : +1 ;
+            int wheelSize = abs( pStroke->rolling ) ;
+            LOG_CMSG( "events" , strokeTypeString << ": " << (dirn < 0?"left":"right") << "/" << wheelSize ) ;
+            // check if this event has been configured
+            Event::eEventType eventType = (dirn < 0) ? Event::etWheelLeft : Event::etWheelRight ;
+            pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
+            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
+                pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
+            // scale the movement (100 = 1 unit)
+            pEventInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
         }
         else
             assert( false ) ;
 
+        // check for sensitivity
+        if ( pEvent != NULL )
+        {
+            // nb: we reduce sensitivity by ignoring events
+            int sensitivity = pAppProfile->sensitivity( pEvent->eventType() ) ;
+            if ( sensitivity > 0 && (++eventCounts[hDevice][pEvent->eventType()] % sensitivity) != 0 )
+                continue ; // nb: we don't forward the event
+        }
+
+        // handle the event
+        if ( pEvent != NULL )
+        {
+            CSendInput sendInput ;
+            for ( ActionPtrVector::const_iterator it=pEvent->actions().begin() ; it != pEvent->actions().end() ; ++it )
+            {
+                const Action* pAction = *it ;
+                LOG_CMSG( "actions" , "ACTION: " << *pAction ) ;
+                pAction->doAction( pEventInfo , &sendInput ) ;
+            }
+            continue ;
+        }
+
         // the event wasn't handled - forward the event (for normal processing)
-        interception_send( hContext , hDevice ,&stroke , 1 ) ;
+        interception_send( hContext , hDevice , &stroke , 1 ) ;
     }
 
     // clean up
@@ -224,39 +283,39 @@ doRunMainLoop( int* pExitFlag )
 // ---------------------------------------------------------------------
 
 static bool
-detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pDirnMagnitude )
+detectMouseMove( const MouseStrokeHistory* pStrokeHistory , Event::eEventType* pEventType , int* pMagnitude )
 {
     // check if we have enough stroke history
-    if ( pStrokeHistory->size() < DIRN_DETECT_WINDOW_SIZE )
+    if ( pStrokeHistory->size() < DETECT_MOUSE_MOVE_WINDOW_SIZE )
         return false ;
 
     // figure out which direction the mouse is moving in
-    LOG_CMSG( "dirnDetect" , "DIRN DETECT: #=" << DIRN_DETECT_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
+    LOG_CMSG( "detectMouseMove" , "DETECT MOUSE MOVE: #=" << DETECT_MOUSE_MOVE_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
     int cumX=0 , cumY=0 , nStrokes=0 ;
     for ( MouseStrokeHistory::const_reverse_iterator it=pStrokeHistory->rbegin() ; it != pStrokeHistory->rend() ; ++it )
     {
         const InterceptionMouseStroke& stroke = (*it).second ;
         cumX += stroke.x ;
         cumY += stroke.y ; 
-        LOG_CMSG( "dirnDetect" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
-        if ( ++nStrokes >= DIRN_DETECT_WINDOW_SIZE )
+        LOG_CMSG( "detectMouseMove" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
+        if ( ++nStrokes >= DETECT_MOUSE_MOVE_WINDOW_SIZE )
             break ;
     }
     // NOTE: It's easier to move a device up/down without drifting left/right, so we bias left/right detection.
-    int biasedCumX = (int)(1000*cumX * DIRN_DETECT_HORZ_BIAS) / 1000 ;
+    int biasedCumX = (int)(1000*cumX * DETECT_MOUSE_MOVE_HORZ_BIAS) / 1000 ;
     if ( abs(biasedCumX) >= abs(cumY) )
     {
-        *pDirn = biasedCumX < 0 ? dLeft : dRight ;
-        *pDirnMagnitude = abs( biasedCumX / nStrokes ) ;
+        *pEventType = biasedCumX < 0 ? Event::etMouseLeft : Event::etMouseRight;
+        *pMagnitude = abs( biasedCumX / nStrokes ) ;
     }
     else
     {
-        *pDirn = cumY < 0 ? dUp : dDown ;
-        *pDirnMagnitude = abs( cumY / nStrokes ) ;
+        *pEventType = cumY < 0 ? Event::etMouseUp : Event::etMouseDown ;
+        *pMagnitude = abs( cumY / nStrokes ) ;
     }
-    LOG_CMSG( "dirnDetect" ,
+    LOG_CMSG( "detectMouseMove" ,
         "  cumX=" << biasedCumX << "(" << cumX << ") ; cumY=" << cumY
-        << " ; dirn=" << toString(*pDirn) << "/" << *pDirnMagnitude
+        << " ; " << *pEventType << "/" << *pMagnitude
     ) ;
 
     return true ;
@@ -265,17 +324,17 @@ detectDirn( const MouseStrokeHistory* pStrokeHistory , eDirn* pDirn , int* pDirn
 // ---------------------------------------------------------------------
 
 static bool
-findDevice( InterceptionDevice hDevice , Device** ppDevice , DeviceConfig** ppDeviceConfig )
+findDevice( InterceptionDevice hDevice , const Device** ppDevice , const DeviceConfig** ppDeviceConfig )
 {
     // find the specified device
-    for( DeviceTable::iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
+    for( DeviceTable::const_iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
     {
-        Device* pDevice = (*it).second ;
+        const Device* pDevice = (*it).second ;
         // FIXME! have to check HID as well
         if ( pDevice->deviceNumber() == hDevice )
         {
             // found it - found the corresponding DeviceConfig
-            DeviceConfigTable::iterator it2 = gDeviceConfigTable.find( pDevice->deviceId() ) ;
+            DeviceConfigTable::const_iterator it2 = gDeviceConfigTable.find( pDevice->deviceId() ) ;
             if ( it2 != gDeviceConfigTable.end() )
             {
                 *ppDevice = pDevice ;
@@ -285,4 +344,48 @@ findDevice( InterceptionDevice hDevice , Device** ppDevice , DeviceConfig** ppDe
         }
     }
     return false ;
+}
+
+// ---------------------------------------------------------------------
+
+const AppProfile*
+findAppProfile( const DeviceConfig* pDeviceConfig , const AppProfile** ppDefaultAppProfile )
+{
+    // get the EXE that owns the foreground window
+    string processExeName ;
+    HWND hWnd = GetForegroundWindow() ;
+    if ( hWnd != NULL )
+    {
+        DWORD processId ;
+        DWORD rc = GetWindowThreadProcessId( hWnd , &processId ) ;
+        if ( rc )
+        {
+            HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION , FALSE , processId ) ;
+            if ( hProcess != NULL )
+            {
+                wchar_t buf[ MAX_PATH+1 ] ;
+                DWORD nChars = sizeof(buf) / sizeof(wchar_t) ;
+                BOOL rc = QueryFullProcessImageName( hProcess , 0 , buf , &nChars ) ;
+                if ( rc )
+                    processExeName = toUtf8( buf , nChars ) ;
+                CloseHandle( hProcess ) ;
+            }
+        }
+    }
+
+    // find the AppProfile that belongs to the EXE
+    const AppProfile* pAppProfileToReturn = NULL ;
+    const AppProfile* pDefaultAppProfile = NULL ;
+    for ( AppProfilePtrVector::const_iterator it=pDeviceConfig->appProfiles().begin() ; it != pDeviceConfig->appProfiles().end() ; ++it )
+    {
+        const AppProfile* pAppProfile = *it ;
+        // FIXME! check for just EXE name (no path)
+        if ( _stricmp( pAppProfile->app().c_str() , processExeName.c_str() ) == 0 )
+            pAppProfileToReturn = pAppProfile ;
+        if ( pAppProfile->app().empty() )
+            pDefaultAppProfile = *it ;
+    }
+
+    *ppDefaultAppProfile = pDefaultAppProfile ;
+    return pAppProfileToReturn ;
 }

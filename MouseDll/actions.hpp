@@ -4,6 +4,7 @@
 #include "utils.hpp"
 
 struct ApiAction ;
+class CSendInput ;
 
 // ---------------------------------------------------------------------
 
@@ -12,7 +13,10 @@ class Action
 
 // data types:
 public:
-    enum eActionType { atMouseLeft=1 , atMouseRight=2 , atMouseUp=3 , atMouseDown=4 } ;
+    enum eActionType {
+        atMouseLeft=1 , atMouseRight=2 , atMouseUp=3 , atMouseDown=4 ,
+        atWheelLeft=5 , atWheelRight=6 , atWheelUp=7 , atWheelDown=8
+        } ;
 
 // constructors/destructor:
 public:
@@ -22,11 +26,19 @@ protected:
     DISABLE_COPY_ASSIGNMENT( Action ) ;
 
 // action methods:
-    virtual void doAction() const = 0 ;
+public:
+    virtual void doAction( void* pInfo , CSendInput* pSendInput ) const = 0 ;
 
 // access methods:
 public:
-    virtual std::string asString() const = 0 ;
+    int keyModifiers() const ;
+    virtual std::string asString() const ;
+protected:
+    virtual const char* pActionName() const = 0 ;
+
+// data members:
+private:
+    int mKeyModifiers ;
 
 } ;
 
@@ -41,8 +53,8 @@ std::ostream& operator<<( std::ostream& , const Action& ) ;
     public: \
         ClassName( const ApiAction* pAction ) ; \
         public: \
-            virtual std::string asString() const ; \
-            virtual void doAction() const ;
+            virtual void doAction( void* pInfo , CSendInput* pSendInput ) const ; \
+            virtual const char* pActionName() const ;
 
 // ---------------------------------------------------------------------
 
@@ -70,6 +82,34 @@ class MouseUpAction : public Action
 class MouseDownAction : public Action
 {
     DEFINE_ACTION_CLASS( MouseDownAction ) ;
+} ;
+
+// ---------------------------------------------------------------------
+
+class WheelLeftAction : public Action
+{
+    DEFINE_ACTION_CLASS( WheelLeftAction ) ;
+} ;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class WheelRightAction : public Action
+{
+    DEFINE_ACTION_CLASS( WheelRightAction ) ;
+} ;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class WheelUpAction : public Action
+{
+    DEFINE_ACTION_CLASS( WheelUpAction ) ;
+} ;
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+class WheelDownAction : public Action
+{
+    DEFINE_ACTION_CLASS( WheelDownAction ) ;
 } ;
 
 // ---------------------------------------------------------------------

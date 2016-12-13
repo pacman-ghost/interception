@@ -7,20 +7,20 @@ using namespace std ;
 
 Event::Event( const ApiEvent* pEvent , const ApiAction* pActions , int nActions )
 {
-    // NOTE: These relationships are not *necessary*, but let's keep things consistent.
-    assert( etMouseLeft == dLeft ) ;
-    assert( etMouseRight == dRight ) ;
-    assert( etMouseUp == dUp ) ;
-    assert( etMouseDown == dDown ) ;
-
     // initialize the Event
-    mEventType = pEvent->mEventType ;
+    mEventType = (eEventType) pEvent->mEventType ;
     mKeyModifiers = pEvent->mKeyModifiers ;
 
     // initialize the Event
     for ( int i=0 ; i < nActions ; ++i )
         mActions.push_back( Action::allocAction( pActions+i ) ) ;
 }
+
+// ---------------------------------------------------------------------
+
+Event::eEventType Event::eventType() const { return mEventType ; }
+int Event::keyModifiers() const { return mKeyModifiers ; }
+const ActionPtrVector& Event::actions() const { return mActions ; }
 
 // ---------------------------------------------------------------------
 
@@ -38,40 +38,29 @@ Event::dumpEvent( ostream& os , const char* pPrefix ) const
 ostream&
 operator<<( ostream& os , const Event& evt )
 {
+    // insert the Event
+    os << "{Event:" << evt.eventType() ;
+    if ( evt.keyModifiers() != 0 )
+        os << ":" << keyModifiersString(evt.keyModifiers()) ;
+    os << "}" ;
+    return os ;
+}
+
+ostream&
+operator<<( ostream& os , const Event::eEventType& eventType )
+{
+    // insert the eEventType
     static EnumStringInfo stringTable[] = {
         { Event::etMouseLeft , "mouseLeft" } ,
         { Event::etMouseRight , "mouseRight" } ,
         { Event::etMouseUp , "mouseUp" } ,
         { Event::etMouseDown , "mouseDown" } ,
+        { Event::etWheelLeft , "wheelLeft" } ,
+        { Event::etWheelRight , "wheelRight" } ,
+        { Event::etWheelUp , "wheelUp" } ,
+        { Event::etWheelDown , "wheelDown" } ,
         { -1 , NULL }
     } ;
-
-    // insert the Event
-    os << "{Event:" << enumString(stringTable,evt.eventType()) ;
-    if ( evt.keyModifiers() != 0 )
-        os << ":" << Event::keyModifiersString(evt.keyModifiers()) ;
-    os << "}" ;
+    os << enumString(stringTable,eventType) ;
     return os ;
 }
-
-// ---------------------------------------------------------------------
-
-string
-Event::keyModifiersString( int keyModifiers )
-{
-    // return the KeyModifiers as a string
-    static BitFlagsInfo stringTable[] =
-    {
-        { Event::kmCtrl , "Ctrl" } ,
-        { Event::kmAlt , "Alt" } ,
-        { Event::kmShift , "Shift" } ,
-        { -1 , NULL } ,
-    } ;
-    return bitFlagsString( stringTable , keyModifiers , '+' ) ;
-}
-
-// ---------------------------------------------------------------------
-
-int Event::eventType() const { return mEventType ; }
-int Event::keyModifiers() const { return mKeyModifiers ; }
-const ActionPtrVector& Event::actions() const { return mActions ; }

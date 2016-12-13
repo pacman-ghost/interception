@@ -52,6 +52,12 @@ DeviceConfig::DeviceConfig(
 
 // ---------------------------------------------------------------------
 
+int DeviceConfig::deviceId() const { return mDeviceId ; }
+const int DeviceConfig::strokeHistoryResetInterval() const { return mStrokeHistoryResetInterval ; }
+const AppProfilePtrVector& DeviceConfig::appProfiles() const { return mAppProfiles ; }
+
+// ---------------------------------------------------------------------
+
 void
 DeviceConfig::dumpDeviceConfig( ostream& os , const char* pPrefix ) const
 {
@@ -74,9 +80,3 @@ operator<<( ostream& os , const DeviceConfig& deviceConfig )
     os << "[DeviceConfig:" << deviceConfig.deviceId() << "]" ;
     return os ;
 }
-
-// ---------------------------------------------------------------------
-
-int DeviceConfig::deviceId() const { return mDeviceId ; }
-const int DeviceConfig::strokeHistoryResetInterval() const { return mStrokeHistoryResetInterval ; }
-const AppProfilePtrVector& DeviceConfig::appProfiles() const { return mAppProfiles ; }

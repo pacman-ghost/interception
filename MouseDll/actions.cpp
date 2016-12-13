@@ -1,4 +1,5 @@
 #include "actions.hpp"
+#include "sendInput.hpp"
 #include "globals.hpp"
 
 using namespace std ;
@@ -6,12 +7,8 @@ using namespace std ;
 // --- Action ---------------------------------------------------------
 
 Action::Action( const ApiAction* pAction )
+    : mKeyModifiers( pAction->mKeyModifiers )
 {
-    // NOTE: These relationships are not *necessary*, but let's keep things consistent.
-    assert( atMouseLeft == dLeft ) ;
-    assert( atMouseRight == dRight ) ;
-    assert( atMouseUp == dUp ) ;
-    assert( atMouseDown == dDown ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -25,11 +22,33 @@ Action::allocAction( const ApiAction* pAction )
         case Action::atMouseRight: return new MouseRightAction(pAction) ;
         case Action::atMouseUp: return new MouseUpAction(pAction) ;
         case Action::atMouseDown: return new MouseDownAction(pAction) ;
+        case Action::atWheelLeft: return new WheelLeftAction(pAction) ;
+        case Action::atWheelRight: return new WheelRightAction(pAction) ;
+        case Action::atWheelUp: return new WheelUpAction(pAction) ;
+        case Action::atWheelDown: return new WheelDownAction(pAction) ;
         default:
             assert( false ) ;
             return NULL ;
     }
 }
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+string
+Action::asString() const
+{
+    // return the Action as a string
+    stringstream buf ;
+    buf << "<" << pActionName() ;
+    if ( keyModifiers() != 0 )
+        buf << ":" << keyModifiersString(keyModifiers()) ;
+    buf << ">" ;
+    return buf.str() ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+int Action::keyModifiers() const { return mKeyModifiers ; }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -51,14 +70,17 @@ MouseLeftAction::MouseLeftAction( const ApiAction* pAction )
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void
-MouseLeftAction::doAction() const
+MouseLeftAction::doAction( void* pInfo , CSendInput* pSendInput ) const
 {
-    assert(0);//FIXME
+    // send a "mouse move left" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendMouseMoveInput( -scrollSize , 0 , keyModifiers() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-string MouseLeftAction::asString() const { return "<MouseLeftAction>" ; }
+const char* MouseLeftAction::pActionName() const { return "MouseLeftAction" ; }
 
 // --- MouseRightAction -----------------------------------------------
 
@@ -70,14 +92,17 @@ MouseRightAction::MouseRightAction( const ApiAction* pAction )
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void
-MouseRightAction::doAction() const
+MouseRightAction::doAction( void* pInfo , CSendInput* pSendInput ) const
 {
-    assert(0);//FIXME
+    // send a "mouse move right" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendMouseMoveInput( scrollSize , 0 , keyModifiers() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-string MouseRightAction::asString() const { return "<MouseRightAction>" ; }
+const char* MouseRightAction::pActionName() const { return "MouseRightAction" ; }
 
 // --- MouseUpAction --------------------------------------------------
 
@@ -89,14 +114,17 @@ MouseUpAction::MouseUpAction( const ApiAction* pAction )
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void
-MouseUpAction::doAction() const
+MouseUpAction::doAction( void* pInfo , CSendInput* pSendInput ) const
 {
-    assert(0);//FIXME
+    // send a "mouse move up" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendMouseMoveInput( 0 , -scrollSize , keyModifiers() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-string MouseUpAction::asString() const { return "<MouseUpAction>" ; }
+const char* MouseUpAction::pActionName() const { return "MouseUpAction" ; }
 
 // --- MouseDownAction ------------------------------------------------
 
@@ -108,11 +136,102 @@ MouseDownAction::MouseDownAction( const ApiAction* pAction )
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void
-MouseDownAction::doAction() const
+MouseDownAction::doAction( void* pInfo , CSendInput* pSendInput ) const
 {
-    assert(0);//FIXME
+    // send a "mouse move down" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendMouseMoveInput( 0 , scrollSize , keyModifiers() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-string MouseDownAction::asString() const { return "<MouseDownAction>" ; }
+const char* MouseDownAction::pActionName() const { return "MouseDownAction" ; }
+
+// --- WheelLeftAction ------------------------------------------------
+
+WheelLeftAction::WheelLeftAction( const ApiAction* pAction )
+    : Action( pAction )
+{
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void
+WheelLeftAction::doAction( void* pInfo , CSendInput* pSendInput ) const
+{
+    // send a "scroll wheel left" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendHorzWheelInput( -scrollSize , keyModifiers() ) ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+const char* WheelLeftAction::pActionName() const { return "WheelLeftAction" ; }
+
+// --- WheelRightAction -----------------------------------------------
+
+WheelRightAction::WheelRightAction( const ApiAction* pAction )
+    : Action( pAction )
+{
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void
+WheelRightAction::doAction( void* pInfo , CSendInput* pSendInput ) const
+{
+    // send a "scroll wheel left" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendHorzWheelInput( scrollSize , keyModifiers() ) ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+const char* WheelRightAction::pActionName() const { return "WheelRightAction" ; }
+
+// --- WheelUpAction --------------------------------------------------
+
+WheelUpAction::WheelUpAction( const ApiAction* pAction )
+    : Action( pAction )
+{
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void
+WheelUpAction::doAction( void* pInfo , CSendInput* pSendInput ) const
+{
+    // send a "scroll wheel up" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendWheelInput( scrollSize , keyModifiers() ) ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+const char* WheelUpAction::pActionName() const { return "WheelUpAction" ; }
+
+// --- WheelDownAction ------------------------------------------------
+
+WheelDownAction::WheelDownAction( const ApiAction* pAction )
+    : Action( pAction )
+{
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void
+WheelDownAction::doAction( void* pInfo , CSendInput* pSendInput ) const
+{
+    // send a "scroll wheel down" event
+    int scrollSize = (int) pInfo ;
+    scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    pSendInput->sendWheelInput( -scrollSize , keyModifiers() ) ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+const char* WheelDownAction::pActionName() const { return "WheelDownAction" ; }

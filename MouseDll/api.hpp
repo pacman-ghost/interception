@@ -38,6 +38,8 @@ struct ApiDeviceConfig
 struct ApiAppProfile
 {
     const wchar_t* mpApp ;
+    int mSensitivityX ;
+    int mSensitivityY ;
     int mEventStartIndex ;
     int mEventCount ;
 } ;
@@ -57,6 +59,7 @@ struct ApiEvent
 struct ApiAction
 {
     int mActionType ;
+    int mKeyModifiers ;
 } ;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

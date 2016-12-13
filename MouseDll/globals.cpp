@@ -25,6 +25,22 @@ ofstream gLogFile ;
 
 // ---------------------------------------------------------------------
 
+string
+keyModifiersString( int keyModifiers )
+{
+    // return the KeyModifiers as a string
+    static BitFlagsInfo stringTable[] =
+    {
+        { kmCtrl , "Ctrl" } ,
+        { kmAlt , "Alt" } ,
+        { kmShift , "Shift" } ,
+        { -1 , NULL } ,
+    } ;
+    return bitFlagsString( stringTable , keyModifiers , '+' ) ;
+}
+
+// ---------------------------------------------------------------------
+
 static StringSet gLogging ;
 
 void initLogging( const wchar_t* pLogging )
@@ -87,22 +103,6 @@ makeLogMsg( const string& msg )
     }
 
     return buf.str() ;
-}
-
-// ---------------------------------------------------------------------
-
-string toString( eDirn dirn )
-{
-    // return the eDirn as a string
-    static EnumStringInfo stringTable[] = {
-        { dUnknown , "UNKNOWN" } ,
-        { dLeft , "LEFT" } ,
-        { dRight , "RIGHT" } ,
-        { dUp , "UP" } ,
-        { dDown , "DOWN" } ,
-        { -1 , NULL }
-    } ;
-    return enumString( stringTable , dirn ) ;
 }
 
 // ---------------------------------------------------------------------

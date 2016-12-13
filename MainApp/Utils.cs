@@ -65,7 +65,15 @@ namespace MouseInterception
                 return xmlAttr.Value ;
             return defaultVal ;
         }
-        public static string getXmlAttr( XmlNode xn , string s ) { return getXmlAttr(xn,s,"") ; }
+
+        public static int getXmlAttr( XmlNode xmlNode , string attrName , int defaultVal )
+        {
+            // get the attribute value
+            XmlAttribute xmlAttr = xmlNode.Attributes[ attrName ] ;
+            if ( xmlAttr != null )
+                return Int32.Parse( xmlAttr.Value ) ;
+            return defaultVal ;
+        }
 
         public static IntPtr toUtf8( string val )
         {

@@ -13,8 +13,10 @@ class Event
 
 // data types:
 public:
-    enum eEventType { etMouseLeft=1 , etMouseRight=2 , etMouseUp=3 , etMouseDown=4 } ;
-    enum eKeyModifiers { kmCtrl=0x0001 , kmAlt=0x0002 , kmShift=0x0004 } ;
+    enum eEventType {
+        etMouseLeft=1 , etMouseRight=2 , etMouseUp=3 , etMouseDown=4 ,
+        etWheelLeft=5 , etWheelRight=6 , etWheelUp=7 , etWheelDown=8
+    } ;
 
 // constructors/destructor:
 public:
@@ -23,19 +25,15 @@ public:
 
 // access methods:
 public:
-    int eventType() const ;
+    eEventType eventType() const ;
     int keyModifiers() const ;
     const ActionPtrVector& actions() const ;
 public:
     void dumpEvent( std::ostream& os , const char* pPrefix="" ) const ;
 
-// miscellaneous methods:
-public:
-    static std::string keyModifiersString( int keyModifiers ) ;
-
 // data members:
 private:
-    int mEventType ;
+    eEventType mEventType ;
     int mKeyModifiers ;
     ActionPtrVector mActions ;
 
@@ -43,8 +41,9 @@ private:
 
 typedef PtrVector<Event> EventPtrVector ;
 
-// inserter
+// inserters
 std::ostream& operator<<( std::ostream& , const Event& ) ;
+std::ostream& operator<<( std::ostream& , const Event::eEventType& ) ;
 
 // ---------------------------------------------------------------------
 

@@ -219,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\sendInput.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\utils.cpp"
 				>
 			</File>
@@ -254,6 +258,10 @@
 			</File>
 			<File
 				RelativePath=".\globals.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\sendInput.hpp"
 				>
 			</File>
 			<File
