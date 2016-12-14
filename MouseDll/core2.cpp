@@ -292,12 +292,36 @@ detectMouseMove( const MouseStrokeHistory* pStrokeHistory , Event::eEventType* p
     // figure out which direction the mouse is moving in
     LOG_CMSG( "detectMouseMove" , "DETECT MOUSE MOVE: #=" << DETECT_MOUSE_MOVE_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
     int cumX=0 , cumY=0 , nStrokes=0 ;
+    const InterceptionMouseStroke* pPrevStroke = NULL ;
     for ( MouseStrokeHistory::const_reverse_iterator it=pStrokeHistory->rbegin() ; it != pStrokeHistory->rend() ; ++it )
     {
         const InterceptionMouseStroke& stroke = (*it).second ;
-        cumX += stroke.x ;
-        cumY += stroke.y ; 
-        LOG_CMSG( "detectMouseMove" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
+        if ( (stroke.flags & MOUSE_MOVE_ABSOLUTE) )
+        {
+            // VMware sends us absolute mouse co-ordinates. The screen seems to be sized as 65,535x65,535 and this post
+            //  seems to confirm that: http://stackoverflow.com/a/35141494
+            if ( pPrevStroke != NULL )
+            {
+                // FIXME! handle multiple monitors
+                int deltaX = pPrevStroke->x - stroke.x ;
+                cumX += deltaX * GetSystemMetrics(SM_CXSCREEN) / 0xFFFF ;
+                int deltaY = pPrevStroke->y - stroke.y ;
+                cumY += deltaY * GetSystemMetrics(SM_CYSCREEN) / 0xFFFF ;
+                LOG_CMSG( "detectMouseMove" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
+            }
+            else
+                LOG_CMSG( "detectMouseMove" , "  x=" << stroke.x << " ; y=" << stroke.y ) ;
+            pPrevStroke = &stroke ;
+        }
+        else
+        {
+            // nb: we assume MOUSE_MOVE_RELATIVE (which is defined as 0)
+            // FIXME! What is MOUSE_VIRTUAL_DESKTOP? Doco for SM_CXVIRTUALSCREEN implies that
+            //  it's all the monitors merged into one big desktop.
+            cumX += stroke.x ;
+            cumY += stroke.y ;
+            LOG_CMSG( "detectMouseMove" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
+        }
         if ( ++nStrokes >= DETECT_MOUSE_MOVE_WINDOW_SIZE )
             break ;
     }
