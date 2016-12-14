@@ -19,7 +19,10 @@ namespace MouseInterception
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
-        private static extern string open_api( callbackDelegate deleg , ref DebugConfig.ApiSettings pDebugSettings ) ;
+        private static extern string open_api(
+            callbackDelegate deleg ,
+            [MarshalAs(UnmanagedType.LPWStr)] string pDebugConfigFilename
+        ) ;
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
@@ -38,19 +41,14 @@ namespace MouseInterception
 
         [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
         [return: MarshalAs(UnmanagedType.BStr)]
-        private static extern string reload_debug_config( ref DebugConfig.ApiSettings pDebugSettings ) ;
-
-        [DllImport( @DLL_NAME , CallingConvention=CallingConvention.Cdecl )]
-        [return: MarshalAs(UnmanagedType.BStr)]
         private static extern string run_main_loop( out int pExitFlag ) ;
 
         private bool mIsLoaded = false ;
 
-        public MouseDll( callbackDelegate cbDeleg )
+        public MouseDll( callbackDelegate cbDeleg , string debugConfigFilename )
         {
             // open the mouse API
-            DebugConfig.ApiSettings debugSettings = Program.debugConfig.settings ;
-            string errorMsg = open_api( cbDeleg , ref debugSettings ) ;
+            string errorMsg = open_api( cbDeleg , debugConfigFilename ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
             mIsLoaded = true ;
@@ -85,15 +83,6 @@ namespace MouseInterception
                 events , events.Length ,
                 actions , actions.Length
             ) ;
-            if ( errorMsg != null )
-                throw new Exception( errorMsg ) ;
-        }
-
-        public void reloadDebugConfig()
-        {
-            // reload the debug config
-            DebugConfig.ApiSettings debugSettings = Program.debugConfig.settings ;
-            string errorMsg = reload_debug_config( ref debugSettings ) ;
             if ( errorMsg != null )
                 throw new Exception( errorMsg ) ;
         }

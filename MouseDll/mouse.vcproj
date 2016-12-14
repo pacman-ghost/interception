@@ -199,6 +199,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\debug.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\device.cpp"
 				>
 			</File>
@@ -242,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\appProfile.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\debug.hpp"
 				>
 			</File>
 			<File

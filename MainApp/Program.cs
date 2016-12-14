@@ -14,7 +14,6 @@ namespace MouseInterception
 
         private static string mBaseDir ;
         private static AppConfig mAppConfig = null ;
-        private static DebugConfig mDebugConfig = null ;
         private static MouseDll mMouseDll = null ;
 
         private static MainForm mMainForm = null ;
@@ -55,15 +54,14 @@ namespace MouseInterception
                 mAppConfig = new AppConfig( fname ) ;
 
                 // load the debug config
-                fname = Path.Combine( Path.GetDirectoryName(fname) , "debug.xml" ) ;
-                if ( ! File.Exists( fname ) )
-                    fname = getAppRelativePath( System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".debug.xml" ) ;
-                mDebugConfig = new DebugConfig( fname ) ;
+                string debugConfigFilename = Path.Combine( Path.GetDirectoryName(fname) , "debug.ini" ) ;
+                if ( ! File.Exists( debugConfigFilename ) )
+                    debugConfigFilename = getAppRelativePath( System.Diagnostics.Process.GetCurrentProcess().ProcessName + ".debug.ini" ) ;
 
                 // initialize
                 if ( hasConsole )
                     System.Console.WriteLine( "" ) ;
-                mMouseDll = new MouseDll( new MouseDll.callbackDelegate(onCallback) ) ;
+                mMouseDll = new MouseDll( new MouseDll.callbackDelegate(onCallback) , debugConfigFilename ) ;
             }
             catch( Exception xcptn )
             {
@@ -151,7 +149,6 @@ namespace MouseInterception
         public static void showErrorMsg( string msg ) { MessageBox.Show(msg,APP_NAME,MessageBoxButtons.OK,MessageBoxIcon.Error) ; }
 
         public static AppConfig appConfig { get { return mAppConfig ; } }
-        public static DebugConfig debugConfig { get { return mDebugConfig ; } }
         public static MouseDll mouseDll { get { return mMouseDll ; } }
         public static MainForm mainForm { get { return mMainForm ; } }
 

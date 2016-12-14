@@ -3,7 +3,7 @@
 
 // ---------------------------------------------------------------------
 
-// IMPORTANT! The definitions here must be kept in sync with their C# equivalents in App/ApiDebugConfig.cs.
+// IMPORTANT! The definitions here must be kept in sync with their C# equivalents in AppConfig.cs.
 
 // --- SETTINGS: application settings ---
 struct ApiAppConfig
@@ -62,14 +62,6 @@ struct ApiAction
     int mKeyModifiers ;
 } ;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-struct ApiDebugConfig
-{
-    const wchar_t* mpLogFilename ;
-    const wchar_t* mpLogging ;
-} ;
-
 // ---------------------------------------------------------------------
 
 // IMPORTANT! The definitions here must be kept in sync with their C# equivalents in MouseDll.cs.
@@ -80,7 +72,7 @@ typedef int (__stdcall *PCALLBACKFN)( int callbackType , const char* pCallbackMs
 #define CBTYPE_FATAL_ERROR  3
 #define CBTYPE_NEW_DEVICE   10
 
-extern void openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig ) ;
+extern void openApi( PCALLBACKFN pCallbackFn , const wchar_t* pDebugConfigFilename ) ;
 extern void closeApi() ;
 
 extern void reloadConfig(
@@ -91,8 +83,6 @@ extern void reloadConfig(
     const ApiEvent* pEvents , int nEvents ,
     const ApiAction* pActions , int nActions
 ) ;
-extern void reloadDebugConfig( const ApiDebugConfig* pDebugConfig ) ;
-
 extern void runMainLoop( int* pExitFlag ) ;
 
 // ---------------------------------------------------------------------

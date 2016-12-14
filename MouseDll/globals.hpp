@@ -2,8 +2,7 @@
 #define GLOBALS_HPP
 
 #include <windows.h>
-#include <iostream>
-#include <fstream>
+#include <iosfwd>
 #include <vector>
 #include <set>
 
@@ -12,6 +11,7 @@
 #include "deviceConfig.hpp"
 #include "api.hpp"
 #include "utils.hpp"
+#include "debug.hpp"
 
 // ---------------------------------------------------------------------
 
@@ -37,32 +37,6 @@ typedef std::set<InterceptionDevice> InterceptionDeviceSet ;
 extern InterceptionDeviceSet gUnknownDevices ;
 
 extern PCALLBACKFN gpCallbackFn ;
-
-// ---------------------------------------------------------------------
-
-#define LOG_MSG( msg ) \
-{ \
-    string _buf_ = makeLogMsg( MAKE_STRING( msg ) ) ; \
-    cout << _buf_ ; \
-    cout.flush() ; \
-    if ( gLogFile.is_open() ) \
-    { \
-        gLogFile << _buf_ ; \
-        gLogFile.flush() ; \
-    } \
-}
-#define LOG_CMSG( c , msg ) \
-{ \
-    if ( isLoggingEnabled( c ) ) \
-        LOG_MSG( msg ) ; \
-}
-
-extern void initLogging( const wchar_t* ) ;
-extern bool isLoggingEnabled( const std::string& ) ;
-extern std::string makeLogMsg( const std::string& ) ;
-
-extern std::wstring gLogFilename ;
-extern std::ofstream gLogFile ;
 
 // ---------------------------------------------------------------------
 

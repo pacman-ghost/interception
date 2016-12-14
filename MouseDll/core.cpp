@@ -6,10 +6,10 @@ using namespace std ;
 // ---------------------------------------------------------------------
 
 void
-openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig )
+openApi( PCALLBACKFN pCallbackFn , const wchar_t* pDebugConfigFilename )
 {
     assert( pCallbackFn != NULL ) ;
-    assert( pDebugConfig != NULL ) ;
+    assert( pDebugConfigFilename != NULL ) ;
 
     // check if we are open
     if ( ghInterceptionDll != NULL )
@@ -18,7 +18,7 @@ openApi( PCALLBACKFN pCallbackFn , const ApiDebugConfig* pDebugConfig )
     // initialize
     assert( gpCallbackFn == NULL ) ;
     gpCallbackFn = pCallbackFn ;
-    reloadDebugConfig( pDebugConfig ) ;
+    loadDebugConfig( pDebugConfigFilename ) ;
 
     // load Interception
     wchar_t buf[ _MAX_PATH+1 ] ;
@@ -137,28 +137,4 @@ reloadConfig(
             (*it).second->dumpDeviceConfig( buf , "  " ) ;
         LOG_MSG( buf.str() ) ;
     }
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-void
-reloadDebugConfig( const ApiDebugConfig* pDebugConfig )
-{
-    assert( pDebugConfig != NULL ) ;
-
-    // initialize the log file
-    const wchar_t* pLogFilename = pDebugConfig->mpLogFilename ;
-    if ( pLogFilename == NULL )
-        pLogFilename = L"" ;
-    if ( _wcsicmp( gLogFilename.c_str() , pLogFilename ) != 0 )
-    {
-        if ( gLogFile.is_open() )
-            gLogFile.close() ;
-        if ( pLogFilename[0] != L'\0' )
-        {
-            gLogFile.open( pLogFilename ) ;
-            gLogFilename = pLogFilename ;
-        }
-    }
-    initLogging( pDebugConfig->mpLogging ) ;
 }
