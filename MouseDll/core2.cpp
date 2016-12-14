@@ -27,6 +27,8 @@ static void doRunMainLoop( int* pExitFlag ) ;
 static bool detectMouseMove( const MouseStrokeHistory* pStrokeHistory , Event::eEventType* pEventType , int* pMagnitude ) ;
 static bool findDevice( InterceptionDevice hDevice , const Device** ppDevice , const DeviceConfig** ppDeviceConfig ) ;
 static const AppProfile* findAppProfile( const DeviceConfig* pDeviceConfig, const AppProfile** ppDefaultAppProfile ) ;
+static bool isAbsolutePath( const string& path ) ;
+static void getFilename( string* pPath ) ;
 
 // --- LOCAL DATA ------------------------------------------------------
 
@@ -403,13 +405,50 @@ findAppProfile( const DeviceConfig* pDeviceConfig , const AppProfile** ppDefault
     for ( AppProfilePtrVector::const_iterator it=pDeviceConfig->appProfiles().begin() ; it != pDeviceConfig->appProfiles().end() ; ++it )
     {
         const AppProfile* pAppProfile = *it ;
-        // FIXME! check for just EXE name (no path)
+        // check if the AppProfile has an absolute path
+        if ( !pAppProfile->app().empty() && !isAbsolutePath(pAppProfile->app()) )
+        {
+            // nope - just compare the EXE filename (without its directory)
+            getFilename( &processExeName ) ;
+        }
+        // check if this is the AppProfile we want
         if ( _stricmp( pAppProfile->app().c_str() , processExeName.c_str() ) == 0 )
             pAppProfileToReturn = pAppProfile ;
+        // check if this is the default AppProfile
         if ( pAppProfile->app().empty() )
             pDefaultAppProfile = *it ;
     }
 
     *ppDefaultAppProfile = pDefaultAppProfile ;
     return pAppProfileToReturn ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+static bool
+isAbsolutePath( const string& path )
+{
+    // check if the specified path is absolute
+    for ( string::const_iterator it=path.begin() ; it != path.end() ; ++it )
+    {
+        if ( *it == ':' || isSlash(*it) )
+            return true ;
+    }
+    return false ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+static void
+getFilename( string* pPath )
+{
+    // extract the filename from the specified path
+    for ( int i=pPath->length()-1 ; i >= 0 ; --i )
+    {
+        if ( isSlash( (*pPath)[i] ) )
+        {
+            *pPath = pPath->c_str() + i+1 ;
+            break ;
+        }
+    }
 }

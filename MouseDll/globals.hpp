@@ -40,6 +40,8 @@ extern PCALLBACKFN gpCallbackFn ;
 
 // ---------------------------------------------------------------------
 
+#define isSlash( ch ) ( (ch) == '/' || (ch) == '\\' )
+
 extern std::ostream& operator<<( std::ostream& os , const std::exception& xcptn ) ;
 
 // ---------------------------------------------------------------------
