@@ -88,11 +88,12 @@ namespace MouseInterception
         {
             public enum ActionType {
                 mouseLeft=1 , mouseRight=2 , mouseUp=3 , mouseDown=4 ,
-                wheelLeft=5 , wheelRight=6 , wheelUp=7 , wheelDown=8
+                wheelLeft=5 , wheelRight=6 , wheelUp=7 , wheelDown=8 ,
+                keyPress=10
             }
             public int mActionType ;
+            public int mActionParam ;
             public int mKeyModifiers ;
-            public int mSpeed ;
         }
         public ApiAction[] mActions ;
         public ApiAction[] actions { get { return mActions ; } }
@@ -175,8 +176,15 @@ namespace MouseInterception
                         {
                             ApiAction action = new ApiAction() ;
                             action.mActionType = (int) Enum.Parse( typeof(ApiAction.ActionType) , actionXmlNode.Attributes["type"].Value , true ) ;
+                            if ( action.mActionType == (int)ApiAction.ActionType.keyPress )
+                            {
+                                action.mActionParam = Utils.getXmlAttr( actionXmlNode , "vKey" , 0 ) ;
+                                if ( action.mActionParam <= 0 )
+                                    throw new Exception( "Missing vKey." ) ;
+                            }
+                            else
+                                action.mActionParam = Utils.getXmlAttr( actionXmlNode , "speed" , 0 ) ;
                             action.mKeyModifiers = getKeyModifiers( actionXmlNode ) ;
-                            action.mSpeed = Utils.getXmlChildVal( actionXmlNode , "speed" , 0 ) ;
                             actions.Add( action ) ;
                             evt.mActionCount ++ ;
                         }

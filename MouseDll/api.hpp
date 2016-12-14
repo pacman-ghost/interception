@@ -59,8 +59,8 @@ struct ApiEvent
 struct ApiAction
 {
     int mActionType ;
+    int mActionParam ;
     int mKeyModifiers ;
-    int mSpeed ;
 } ;
 
 // ---------------------------------------------------------------------

@@ -7,8 +7,8 @@ using namespace std ;
 // --- Action ---------------------------------------------------------
 
 Action::Action( const ApiAction* pAction )
-    : mKeyModifiers( pAction->mKeyModifiers )
-    , mSpeed( pAction->mSpeed )
+    : mActionParam( pAction->mActionParam )
+    , mKeyModifiers( pAction->mKeyModifiers )
 {
 }
 
@@ -27,6 +27,7 @@ Action::allocAction( const ApiAction* pAction )
         case Action::atWheelRight: return new WheelRightAction(pAction) ;
         case Action::atWheelUp: return new WheelUpAction(pAction) ;
         case Action::atWheelDown: return new WheelDownAction(pAction) ;
+        case Action::atKeyPress: return new KeyPressAction(pAction) ;
         default:
             assert( false ) ;
             return NULL ;
@@ -38,7 +39,7 @@ Action::allocAction( const ApiAction* pAction )
 int Action::adjustForSpeed( int val ) const
 {
     // NOTE: Speed values are percentages, offset by 100.
-    int percentDelta = 100 + speed() ;
+    int percentDelta = 100 + actionParam() ;
     if ( percentDelta <= 0 )
         percentDelta = 1 ; // nb: never go below 0%, always return something
     return val * percentDelta / 100 ;
@@ -54,8 +55,8 @@ Action::asString() const
     buf << "<" << pActionName() ;
     if ( keyModifiers() != 0 )
         buf << ":" << keyModifiersString(keyModifiers()) ;
-    if ( speed() != 0 )
-        buf << ":" << speed() ;
+    if ( actionParam() != 0 )
+        buf << ":" << actionParam() ;
     buf << ">" ;
     return buf.str() ;
 }
@@ -63,7 +64,7 @@ Action::asString() const
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 int Action::keyModifiers() const { return mKeyModifiers ; }
-int Action::speed() const { return mSpeed ; }
+int Action::actionParam() const { return mActionParam ; }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -258,3 +259,26 @@ WheelDownAction::doAction( void* pInfo , CSendInput* pSendInput ) const
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 const char* WheelDownAction::pActionName() const { return "WheelDownAction" ; }
+
+// --- KeyPressAction -------------------------------------------------
+
+KeyPressAction::KeyPressAction( const ApiAction* pAction )
+    : Action( pAction )
+{
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+void
+KeyPressAction::doAction( void* pInfo , CSendInput* pSendInput ) const
+{
+    // send a "keypress" event
+    int vKey = actionParam() ;
+// FIXME! this will save/restore the keyboard state twice!
+    pSendInput->sendKeyboardInput( vKey , true , keyModifiers() ) ;
+    pSendInput->sendKeyboardInput( vKey , false , keyModifiers() ) ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+const char* KeyPressAction::pActionName() const { return "KeyPressAction" ; }

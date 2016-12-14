@@ -15,7 +15,8 @@ class Action
 public:
     enum eActionType {
         atMouseLeft=1 , atMouseRight=2 , atMouseUp=3 , atMouseDown=4 ,
-        atWheelLeft=5 , atWheelRight=6 , atWheelUp=7 , atWheelDown=8
+        atWheelLeft=5 , atWheelRight=6 , atWheelUp=7 , atWheelDown=8 ,
+        atKeyPress=10
         } ;
 
 // constructors/destructor:
@@ -31,8 +32,8 @@ public:
 
 // access methods:
 public:
+    int actionParam() const ;
     int keyModifiers() const ;
-    int speed() const ;
     virtual std::string asString() const ;
 protected:
     virtual const char* pActionName() const = 0 ;
@@ -40,8 +41,8 @@ protected:
 
 // data members:
 private:
+    int mActionParam ;
     int mKeyModifiers ;
-    int mSpeed ;
 
 } ;
 
@@ -61,59 +62,17 @@ std::ostream& operator<<( std::ostream& , const Action& ) ;
 
 // ---------------------------------------------------------------------
 
-class MouseLeftAction : public Action
-{
-    DEFINE_ACTION_CLASS( MouseLeftAction ) ;
-} ;
+class MouseLeftAction : public Action { DEFINE_ACTION_CLASS( MouseLeftAction ) ; } ;
+class MouseRightAction : public Action { DEFINE_ACTION_CLASS( MouseRightAction ) ; } ;
+class MouseUpAction : public Action { DEFINE_ACTION_CLASS( MouseUpAction ) ; } ;
+class MouseDownAction : public Action { DEFINE_ACTION_CLASS( MouseDownAction ) ; } ;
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+class WheelLeftAction : public Action { DEFINE_ACTION_CLASS( WheelLeftAction ) ; } ;
+class WheelRightAction : public Action { DEFINE_ACTION_CLASS( WheelRightAction ) ; } ;
+class WheelUpAction : public Action { DEFINE_ACTION_CLASS( WheelUpAction ) ; } ;
+class WheelDownAction : public Action { DEFINE_ACTION_CLASS( WheelDownAction ) ; } ;
 
-class MouseRightAction : public Action
-{
-    DEFINE_ACTION_CLASS( MouseRightAction ) ;
-} ;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-class MouseUpAction : public Action
-{
-    DEFINE_ACTION_CLASS( MouseUpAction ) ;
-} ;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-class MouseDownAction : public Action
-{
-    DEFINE_ACTION_CLASS( MouseDownAction ) ;
-} ;
-
-// ---------------------------------------------------------------------
-
-class WheelLeftAction : public Action
-{
-    DEFINE_ACTION_CLASS( WheelLeftAction ) ;
-} ;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-class WheelRightAction : public Action
-{
-    DEFINE_ACTION_CLASS( WheelRightAction ) ;
-} ;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-class WheelUpAction : public Action
-{
-    DEFINE_ACTION_CLASS( WheelUpAction ) ;
-} ;
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-class WheelDownAction : public Action
-{
-    DEFINE_ACTION_CLASS( WheelDownAction ) ;
-} ;
+class KeyPressAction : public Action { DEFINE_ACTION_CLASS( KeyPressAction ) ; } ;
 
 // ---------------------------------------------------------------------
 
