@@ -188,7 +188,7 @@ doRunMainLoop( int* pExitFlag )
 
         // figure out what we should do
         const Event* pEvent = NULL ;
-        void* pEventInfo = NULL ;
+        void* pActionInfo = NULL ;
         if ( strokeType == stMouseMove )
         {
             // record the stroke
@@ -214,7 +214,7 @@ doRunMainLoop( int* pExitFlag )
             if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
                 pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
             // scale the movement (100 = 1 unit)
-            pEventInfo = (void*) (100 * magnitude) ;
+            pActionInfo = (void*) (100 * magnitude) ;
         }
         else if ( strokeType == stMouseWheel )
         {
@@ -228,7 +228,7 @@ doRunMainLoop( int* pExitFlag )
             if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
                 pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
             // scale the movement (100 = 1 unit)
-            pEventInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
+            pActionInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
         }
         else if ( strokeType == stMouseHorzWheel )
         {
@@ -242,7 +242,7 @@ doRunMainLoop( int* pExitFlag )
             if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
                 pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
             // scale the movement (100 = 1 unit)
-            pEventInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
+            pActionInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
         }
         else
             assert( false ) ;
@@ -263,8 +263,8 @@ doRunMainLoop( int* pExitFlag )
             for ( ActionPtrVector::const_iterator it=pEvent->actions().begin() ; it != pEvent->actions().end() ; ++it )
             {
                 const Action* pAction = *it ;
-                LOG_CMSG( "actions" , "ACTION: " << *pAction ) ;
-                pAction->doAction( pEventInfo , &sendInput ) ;
+                LOG_CMSG( "actions" , "ACTION: " << *pAction << " (" << dec << (int)pActionInfo << ")" ) ;
+                pAction->doAction( pActionInfo , &sendInput ) ;
             }
             continue ;
         }
