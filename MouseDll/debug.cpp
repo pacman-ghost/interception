@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <fstream>
 #include <set>
 #include <ctime>
 
@@ -9,8 +10,9 @@ using namespace std ;
 
 // --- LOCAL DATA ------------------------------------------------------
 
-ofstream gLogFile ;
-static wstring gLogFilename ;
+ostream* gpLogStream = NULL ;
+static ofstream gLogFile ;
+static wstring gLogFilename = L"<unset>" ;
 
 static StringSet gEnabledLogging ; // FIXME! make this case-insensitive
 
@@ -19,6 +21,8 @@ static StringSet gEnabledLogging ; // FIXME! make this case-insensitive
 void
 loadDebugConfig( const wchar_t* pDebugConfigFilename )
 {
+    // NOTE: We have to do everything using wide strings, so that we can have a wide file path :-/
+
     // initialize logging
     gEnabledLogging.clear() ;
     wchar_t buf[ 4*1024 ] ;
@@ -36,11 +40,17 @@ loadDebugConfig( const wchar_t* pDebugConfigFilename )
     {
         if ( gLogFile.is_open() )
             gLogFile.close() ;
-        if ( pLogFilename[0] != L'\0' )
+        if ( _wcsicmp( pLogFilename , L"console" ) == 0 || pLogFilename[0] == L'\0' )
+        {
+            // FIXME! When the main app calls AttachConsole(), we don't seem to be able to access cout/cerr separately.
+            gpLogStream = & cout ;
+        }
+        else
         {
             gLogFile.open( pLogFilename ) ;
-            gLogFilename = pLogFilename ;
+            gpLogStream = & gLogFile ;
         }
+        gLogFilename = pLogFilename ;
     }
 }
 
@@ -61,7 +71,7 @@ makeLogMsg( const string& msg )
             time_t now = time( NULL ) ;
             struct tm tmNow ;
             (void) localtime_s( &tmNow , &now ) ;
-            strftime( buf2 , sizeof(buf2) , "%d/%b/%y %H:%M:%S" , &tmNow ) ;
+            strftime( buf2 , ARRAY_SIZE(buf2) , "%d/%b/%y %H:%M:%S" , &tmNow ) ;
             for ( int i=0 ; buf2[i] != ' ' ; ++i )
                 buf2[i] = toupper( buf2[i] ) ;
             buf << buf2 ;

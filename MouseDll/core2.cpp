@@ -388,7 +388,7 @@ findAppProfile( const DeviceConfig* pDeviceConfig , const AppProfile** ppDefault
             if ( hProcess != NULL )
             {
                 wchar_t buf[ MAX_PATH+1 ] ;
-                DWORD nChars = sizeof(buf) / sizeof(wchar_t) ;
+                DWORD nChars = ARRAY_SIZE( buf ) ;
                 BOOL rc = QueryFullProcessImageName( hProcess , 0 , buf , &nChars ) ;
                 if ( rc )
                     processExeName = toUtf8( buf , nChars ) ;

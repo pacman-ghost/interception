@@ -2,7 +2,6 @@
 #define DEBUG_HPP
 
 #include <iostream>
-#include <fstream>
 
 // ---------------------------------------------------------------------
 
@@ -12,15 +11,13 @@ extern void loadDebugConfig( const wchar_t* pDebugConfigFilename ) ;
 
 #define LOG_MSG( msg ) \
 { \
-    string _buf_ = makeLogMsg( MAKE_STRING( msg ) ) ; \
-    cout << _buf_ ; \
-    cout.flush() ; \
-    if ( gLogFile.is_open() ) \
+    if ( gpLogStream != NULL ) \
     { \
-        gLogFile << _buf_ ; \
-        gLogFile.flush() ; \
+        *gpLogStream << makeLogMsg( MAKE_STRING( msg ) ) ; \
+        gpLogStream->flush() ; \
     } \
 }
+
 #define LOG_CMSG( c , msg ) \
 { \
     if ( isLoggingEnabled( c ) ) \
@@ -30,7 +27,7 @@ extern void loadDebugConfig( const wchar_t* pDebugConfigFilename ) ;
 extern bool isLoggingEnabled( const std::string& ) ;
 extern std::string makeLogMsg( const std::string& ) ;
 
-extern std::ofstream gLogFile ;
+extern std::ostream* gpLogStream ;
 
 // ---------------------------------------------------------------------
 
