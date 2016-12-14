@@ -96,19 +96,5 @@ namespace MouseInterception
             Marshal.Copy( pVal , buf , 0 , buf.Length ) ;
             return Encoding.UTF8.GetString( buf ) ;
         }
-
-        public static bool? getKeyState( XmlNode xmlNode , string attrName )
-        {
-            // get the key state
-            XmlAttribute xmlAttr = xmlNode.Attributes[ attrName ] ;
-            if ( xmlAttr == null )
-                return null ;
-            string attrVal = xmlAttr.Value.Trim() ;
-            if ( attrVal == "down" )
-                return true ;
-            if ( attrVal == "up" )
-                return false ;
-            throw new Exception( "Invalid key state: " + attrVal ) ;
-        }
     }
 }

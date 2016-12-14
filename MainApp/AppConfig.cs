@@ -167,7 +167,7 @@ namespace MouseInterception
                     {
                         ApiEvent evt = new ApiEvent() ;
                         evt.mEventType = (int) Enum.Parse( typeof(ApiEvent.EventType) , eventXmlNode.Attributes["type"].Value , true ) ;
-                        evt.mKeyModifiers = getXmlNodeKeyModifiers( eventXmlNode ) ;
+                        evt.mKeyModifiers = getKeyModifiers( eventXmlNode ) ;
                         // parse the actions
                         evt.mActionStartIndex = actions.Count ;
                         evt.mActionCount = 0 ;
@@ -175,7 +175,7 @@ namespace MouseInterception
                         {
                             ApiAction action = new ApiAction() ;
                             action.mActionType = (int) Enum.Parse( typeof(ApiAction.ActionType) , actionXmlNode.Attributes["type"].Value , true ) ;
-                            action.mKeyModifiers = getXmlNodeKeyModifiers( actionXmlNode ) ;
+                            action.mKeyModifiers = getKeyModifiers( actionXmlNode ) ;
                             action.mSpeed = Utils.getXmlChildVal( actionXmlNode , "speed" , 0 ) ;
                             actions.Add( action ) ;
                             evt.mActionCount ++ ;
@@ -196,17 +196,17 @@ namespace MouseInterception
             mActions = actions.ToArray() ;
         }
 
-        private static int getXmlNodeKeyModifiers( XmlNode xmlNode )
+        private static int getKeyModifiers( XmlNode xmlNode )
         {
             // get the key modifiers
-            int keyModifiers = 0 ;
-            foreach( string km in Enum.GetNames(typeof(KeyModifiers)) )
+            int keyModifierFlags = 0 ;
+            string keyModifiers = Utils.getXmlAttr( xmlNode , "keyModifiers" , "" ) ;
+            if ( keyModifiers.Length > 0 )
             {
-                bool? keyState = Utils.getKeyState( xmlNode , km ) ;
-                if ( keyState.HasValue && (bool)keyState )
-                    keyModifiers += (int) Enum.Parse( typeof(KeyModifiers) , km , true ) ;
+                foreach( string km in keyModifiers.Split('+') )
+                    keyModifierFlags += (int) Enum.Parse( typeof(KeyModifiers) , km.ToLower() , true ) ;
             }
-            return keyModifiers ;
+            return keyModifierFlags ;
         }
 
     }
