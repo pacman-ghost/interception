@@ -32,13 +32,16 @@ public:
 // access methods:
 public:
     int keyModifiers() const ;
+    int speed() const ;
     virtual std::string asString() const ;
 protected:
     virtual const char* pActionName() const = 0 ;
+    int adjustForSpeed( int val ) const ;
 
 // data members:
 private:
     int mKeyModifiers ;
+    int mSpeed ;
 
 } ;
 

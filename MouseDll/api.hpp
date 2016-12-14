@@ -60,6 +60,7 @@ struct ApiAction
 {
     int mActionType ;
     int mKeyModifiers ;
+    int mSpeed ;
 } ;
 
 // ---------------------------------------------------------------------

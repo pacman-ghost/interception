@@ -8,6 +8,7 @@ using namespace std ;
 
 Action::Action( const ApiAction* pAction )
     : mKeyModifiers( pAction->mKeyModifiers )
+    , mSpeed( pAction->mSpeed )
 {
 }
 
@@ -34,6 +35,17 @@ Action::allocAction( const ApiAction* pAction )
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+int Action::adjustForSpeed( int val ) const
+{
+    // NOTE: Speed values are percentages, offset by 100.
+    int percentDelta = 100 + speed() ;
+    if ( percentDelta <= 0 )
+        percentDelta = 1 ; // nb: never go below 0%, always return something
+    return val * percentDelta / 100 ;
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 string
 Action::asString() const
 {
@@ -42,6 +54,8 @@ Action::asString() const
     buf << "<" << pActionName() ;
     if ( keyModifiers() != 0 )
         buf << ":" << keyModifiersString(keyModifiers()) ;
+    if ( speed() != 0 )
+        buf << ":" << speed() ;
     buf << ">" ;
     return buf.str() ;
 }
@@ -49,6 +63,7 @@ Action::asString() const
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 int Action::keyModifiers() const { return mKeyModifiers ; }
+int Action::speed() const { return mSpeed ; }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -75,6 +90,7 @@ MouseLeftAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "mouse move left" event
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendMouseMoveInput( -scrollSize , 0 , keyModifiers() ) ;
 }
 
@@ -97,6 +113,7 @@ MouseRightAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "mouse move right" event
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendMouseMoveInput( scrollSize , 0 , keyModifiers() ) ;
 }
 
@@ -119,6 +136,7 @@ MouseUpAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "mouse move up" event
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendMouseMoveInput( 0 , -scrollSize , keyModifiers() ) ;
 }
 
@@ -141,6 +159,7 @@ MouseDownAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "mouse move down" event
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendMouseMoveInput( 0 , scrollSize , keyModifiers() ) ;
 }
 
@@ -163,6 +182,7 @@ WheelLeftAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "scroll wheel left" event
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendHorzWheelInput( -scrollSize , keyModifiers() ) ;
 }
 
@@ -185,6 +205,7 @@ WheelRightAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "scroll wheel left" event
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendHorzWheelInput( scrollSize , keyModifiers() ) ;
 }
 
@@ -207,6 +228,7 @@ WheelUpAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "scroll wheel up" event
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendWheelInput( scrollSize , keyModifiers() ) ;
 }
 
@@ -229,6 +251,7 @@ WheelDownAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     // send a "scroll wheel down" event
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
+    scrollSize = adjustForSpeed( scrollSize ) ;
     pSendInput->sendWheelInput( -scrollSize , keyModifiers() ) ;
 }
 

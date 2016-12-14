@@ -92,6 +92,7 @@ namespace MouseInterception
             }
             public int mActionType ;
             public int mKeyModifiers ;
+            public int mSpeed ;
         }
         public ApiAction[] mActions ;
         public ApiAction[] actions { get { return mActions ; } }
@@ -175,6 +176,7 @@ namespace MouseInterception
                             ApiAction action = new ApiAction() ;
                             action.mActionType = (int) Enum.Parse( typeof(ApiAction.ActionType) , actionXmlNode.Attributes["type"].Value , true ) ;
                             action.mKeyModifiers = getXmlNodeKeyModifiers( actionXmlNode ) ;
+                            action.mSpeed = Utils.getXmlChildVal( actionXmlNode , "speed" , 0 ) ;
                             actions.Add( action ) ;
                             evt.mActionCount ++ ;
                         }
