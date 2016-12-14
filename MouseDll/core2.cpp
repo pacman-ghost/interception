@@ -95,8 +95,10 @@ doRunMainLoop( int* pExitFlag )
     ) ;
 
     // run the main loop
+    DWORD startTime = GetTickCount() ;
     MouseStrokeHistoryTable mouseMovesHistoryTable ;
     EventCountTable eventCounts ;
+    int nWaitFailures = 0 ;
     for ( ; ; )
     {
         // wait for the next event
@@ -107,6 +109,10 @@ doRunMainLoop( int* pExitFlag )
             // check if we should exit
             if ( *pExitFlag != 0 )
                 break ;
+            // FUDGE! interception_wait_with_timeout() doesn't distinguish between a timeout and a failure, so we try
+            //  to figure out what's happened here (otherwise we get into a tight infinite loop :-/).
+            if ( mouseMovesHistoryTable.empty() && ++nWaitFailures > 10 && GetTickCount()-startTime < 500 )
+                throw runtime_error( "Can't connect to the mouse driver." ) ;
             continue ;
         }
         InterceptionStroke stroke ;
