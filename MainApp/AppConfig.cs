@@ -103,6 +103,8 @@ namespace MouseInterception
         public AppConfig( string fname )
         {
             // initialize
+            HashSet<int> deviceIds = new HashSet<int>() ;
+            HashSet<int> deviceNumbers = new HashSet<int>() ;
             mSettings = new ApiSettings() ;
             mDevices = new ApiDevice[ 0 ] ;
             mDeviceConfigs = new ApiDeviceConfig[ 0 ] ;
@@ -130,8 +132,15 @@ namespace MouseInterception
             {
                 ApiDevice device = new ApiDevice() ;
                 device.mDeviceId = Int32.Parse( xn.Attributes["id"].Value ) ;
+                if ( deviceIds.Contains( device.mDeviceId ) )
+                    throw new Exception( String.Format( "Duplicate device ID: {0}" , device.mDeviceId ) ) ;
+                deviceIds.Add( device.mDeviceId ) ;
                 device.mHID = xn.SelectSingleNode("hid").InnerText.Trim() ;
                 device.mDeviceNumber = Int32.Parse( xn.SelectSingleNode("deviceNumber").InnerText ) ;
+                if ( deviceNumbers.Contains( device.mDeviceNumber ) )
+                    throw new Exception( String.Format( "Duplicate device number: {0}" , device.mDeviceNumber ) ) ;
+                deviceNumbers.Add( device.mDeviceNumber ) ;
+                if ( deviceNumbers.Contains ( device.mDeviceNumber ) )
                 device.mDisplayName = Utils.getXmlChildVal( xn , "displayName" ) ;
                 device.mIsEnabled = Utils.getXmlChildVal( xn , "enabled" , false ) ;
                 devices.Add( device ) ;
