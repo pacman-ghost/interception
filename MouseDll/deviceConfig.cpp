@@ -20,8 +20,8 @@ DeviceConfig::DeviceConfig(
     for ( int i=0 ; i < nAppProfiles ; ++i )
     {
         const ApiAppProfile* pAppProfile = pAppProfiles + i ;
-        // validate the Event index/count
-        if ( pAppProfile->mEventStartIndex < 0 || (pAppProfile->mEventStartIndex > 0 && pAppProfile->mEventStartIndex >= nEvents) )
+        // validate the Event start index and count
+        if ( pAppProfile->mEventStartIndex < 0 || (pAppProfile->mEventCount > 0 && pAppProfile->mEventStartIndex >= nEvents) )
         {
             throw runtime_error(
                 MAKE_STRING(
@@ -30,7 +30,7 @@ DeviceConfig::DeviceConfig(
                 )
             ) ;
         }
-        if ( pAppProfile->mEventCount < 0 || pAppProfile->mEventStartIndex + pAppProfile->mEventCount > nEvents )
+        if ( pAppProfile->mEventCount < 0 || (pAppProfile->mEventCount > 0 && pAppProfile->mEventStartIndex+pAppProfile->mEventCount > nEvents) )
         {
             throw runtime_error(
                 MAKE_STRING(

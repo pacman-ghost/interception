@@ -102,8 +102,8 @@ reloadConfig(
     for ( int i=0 ; i < nDeviceConfigs ; ++i )
     {
         const ApiDeviceConfig* pDeviceConfig = pDeviceConfigs + i ;
-        // validate the AppProfile index/count
-        if ( pDeviceConfig->mAppProfileStartIndex < 0 || (pDeviceConfig->mAppProfileStartIndex > 0 && pDeviceConfig->mAppProfileStartIndex >= nAppProfiles) )
+        // validate the AppProfile start index and count
+        if ( pDeviceConfig->mAppProfileStartIndex < 0 || (pDeviceConfig->mAppProfileCount > 0 && pDeviceConfig->mAppProfileStartIndex >= nAppProfiles) )
         {
             throw runtime_error(
                 MAKE_STRING(
@@ -112,7 +112,7 @@ reloadConfig(
                 )
             ) ;
         }
-        if ( pDeviceConfig->mAppProfileCount < 0 || pDeviceConfig->mAppProfileStartIndex + pDeviceConfig->mAppProfileCount > nAppProfiles )
+        if ( pDeviceConfig->mAppProfileCount < 0 || (pDeviceConfig->mAppProfileCount > 0 && pDeviceConfig->mAppProfileStartIndex+pDeviceConfig->mAppProfileCount > nAppProfiles) )
         {
             throw runtime_error(
                 MAKE_STRING(
