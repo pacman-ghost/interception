@@ -18,7 +18,31 @@ CSendInput::~CSendInput()
 // ---------------------------------------------------------------------
 
 void
-CSendInput::sendKeyboardInput( WORD keyCode , bool keyDown , int keyModifiers )
+CSendInput::setKeyboardState( const KeyboardState& newKeyboardState , const KeyboardState& currKeyboardState )
+{
+    // set the new keyboard state
+    if ( newKeyboardState.isCtrlDown() && !currKeyboardState.isCtrlDown() )
+        sendKeyboardInput( VK_CONTROL , true ) ;
+    else if ( !newKeyboardState.isCtrlDown() && currKeyboardState.isCtrlDown() )
+        sendKeyboardInput( VK_CONTROL , false ) ;
+
+    // set the new keyboard state
+    if ( newKeyboardState.isAltDown() && !currKeyboardState.isAltDown() )
+        sendKeyboardInput( VK_MENU , true ) ;
+    else if ( !newKeyboardState.isAltDown() && currKeyboardState.isAltDown() )
+        sendKeyboardInput( VK_MENU , false ) ;
+
+    // set the new keyboard state
+    if ( newKeyboardState.isShiftDown() && !currKeyboardState.isShiftDown() )
+        sendKeyboardInput( VK_SHIFT , true ) ;
+    else if ( !newKeyboardState.isShiftDown() && currKeyboardState.isShiftDown() )
+        sendKeyboardInput( VK_SHIFT , false ) ;
+}
+
+// ---------------------------------------------------------------------
+
+void
+CSendInput::sendKeyboardInput( WORD keyCode , bool keyDown )
 {
     // send the keyboard input
     INPUT inputRec ;
@@ -27,76 +51,60 @@ CSendInput::sendKeyboardInput( WORD keyCode , bool keyDown , int keyModifiers )
     inputRec.ki.wVk = keyCode ;
     if ( ! keyDown )
         inputRec.ki.dwFlags |= KEYEVENTF_KEYUP ;
-    doSendInput( &inputRec , keyModifiers ) ;
+    doSendInput( &inputRec ) ;
 }
 
 // ---------------------------------------------------------------------
 
 void
-CSendInput::sendMouseMoveInput( int dx , int dy , int keyModifiers )
+CSendInput::sendMouseMoveInput( int dx , int dy , const KeyboardState& keyboardState )
 {
     // send the mouse movement input
+    KeyboardStateGuard keyboardStateGuard( *this , keyboardState ) ;
     INPUT inputRec ;
     memset( &inputRec , 0 , sizeof(INPUT) ) ;
     inputRec.type = INPUT_MOUSE ;
     inputRec.mi.dx = dx ;
     inputRec.mi.dy = dy ;
     inputRec.mi.dwFlags = MOUSEEVENTF_MOVE ;
-    doSendInput( &inputRec , keyModifiers ) ;
+    doSendInput( &inputRec ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void
-CSendInput::sendWheelInput( int scrollSize , int keyModifiers )
+CSendInput::sendWheelInput( int scrollSize , const KeyboardState& keyboardState )
 {
     // send the mouse-wheel input
+    KeyboardStateGuard keyboardStateGuard( *this , keyboardState ) ;
     INPUT inputRec ;
     memset( &inputRec , 0 , sizeof(INPUT) ) ;
     inputRec.type = INPUT_MOUSE ;
     inputRec.mi.dwFlags = MOUSEEVENTF_WHEEL ;
     inputRec.mi.mouseData = scrollSize ; // FIXME! s.b. dwData for vista
-    doSendInput( &inputRec , keyModifiers ) ;
+    doSendInput( &inputRec ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 void
-CSendInput::sendHorzWheelInput( int scrollSize , int keyModifiers )
+CSendInput::sendHorzWheelInput( int scrollSize , const KeyboardState& keyboardState )
 {
     // send the mouse-wheel input
+    KeyboardStateGuard keyboardStateGuard( *this , keyboardState ) ;
     INPUT inputRec ;
     memset( &inputRec , 0 , sizeof(INPUT) ) ;
     inputRec.type = INPUT_MOUSE ;
     inputRec.mi.dwFlags = MOUSEEVENTF_HWHEEL ;
     inputRec.mi.mouseData = scrollSize ; // FIXME! s.b. dwData for vista
-    doSendInput( &inputRec , keyModifiers ) ;
+    doSendInput( &inputRec ) ;
 }
 
 // ---------------------------------------------------------------------
 
 void
-CSendInput::doSendInput( INPUT* pInputRec , int keyModifiers )
+CSendInput::doSendInput( INPUT* pInputRec )
 {
-    // set the keyboard state
-    bool isCtrlDown , isAltDown , isShiftDown ;
-    if ( keyModifiers >= 0 )
-    {
-        getKeyboardState( &isCtrlDown , &isAltDown , &isShiftDown ) ;
-        if ( (keyModifiers & kmCtrl) && !isCtrlDown )
-            sendKeyboardInput( VK_CONTROL , true , -1 ) ;
-        else if ( !(keyModifiers & kmCtrl) && isCtrlDown )
-            sendKeyboardInput( VK_CONTROL , false , -1 ) ;
-        if ( (keyModifiers & kmAlt) && !isAltDown )
-            sendKeyboardInput( VK_MENU , true , -1 ) ;
-        else if ( !(keyModifiers & kmAlt) && isAltDown )
-            sendKeyboardInput( VK_MENU , false , -1 ) ;
-        if ( (keyModifiers & kmShift) && !isShiftDown )
-            sendKeyboardInput( VK_SHIFT , true , -1 ) ;
-        else if ( !(keyModifiers & kmShift) && isShiftDown )
-            sendKeyboardInput( VK_SHIFT , false , -1 ) ;
-    }
-
     // log the input
     if ( isLoggingEnabled( "sendInput" ) )
     {
@@ -128,44 +136,5 @@ CSendInput::doSendInput( INPUT* pInputRec , int keyModifiers )
     //  Maybe because we're manipulating the Ctrl/Alt/Shift keys...?
     UINT nEventRecs = SendInput( 1 , pInputRec , sizeof(INPUT) ) ;
     assert( nEventRecs == 1 ) ;
-    Sleep( 5 ) ;
-
-    // restore the keyboard state
-    if ( keyModifiers >= 0 )
-    {
-        if ( (keyModifiers & kmShift) && !isShiftDown )
-            sendKeyboardInput( VK_SHIFT , false , -1 ) ;
-        else if ( !(keyModifiers & kmShift) && isShiftDown )
-            sendKeyboardInput( VK_SHIFT , true , -1 ) ;
-        if ( (keyModifiers & kmAlt) && !isAltDown )
-            sendKeyboardInput( VK_MENU , false , -1 ) ;
-        else if ( !(keyModifiers & kmAlt) && isAltDown )
-            sendKeyboardInput( VK_MENU , true , -1 ) ;
-        if ( (keyModifiers & kmCtrl) && !isCtrlDown )
-            sendKeyboardInput( VK_CONTROL , false , -1 ) ;
-        else if ( !(keyModifiers & kmCtrl) && isCtrlDown )
-            sendKeyboardInput( VK_CONTROL , true , -1 ) ;
-    }
-}
-
-// ---------------------------------------------------------------------
-
-void
-CSendInput::getKeyboardState( bool* pIsCtrlDown , bool* pIsAltDown , bool* pIsShiftDown )
-{
-    // get the keyboard state
-    *pIsCtrlDown = GetAsyncKeyState( VK_CONTROL ) < 0 ;
-    *pIsAltDown = GetAsyncKeyState( VK_MENU ) < 0 ;
-    *pIsShiftDown = GetAsyncKeyState( VK_SHIFT ) < 0 ;
-}
-
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-int
-CSendInput::getKeyboardState()
-{
-    // get the keyboard state
-    bool isCtrlDown , isAltDown , isShiftDown ;
-    getKeyboardState( &isCtrlDown , &isAltDown , &isShiftDown ) ;
-    return (isCtrlDown ? kmCtrl : 0) | (isAltDown ? kmAlt : 0) | (isShiftDown ? kmShift : 0 ) ;
+    Sleep( 5 ) ; // FIXME! get rid of this
 }

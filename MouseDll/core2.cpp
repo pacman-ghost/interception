@@ -133,16 +133,16 @@ doRunMainLoop( int* pExitFlag )
         else
             strokeType = stMouseMove ;
         string strokeTypeString = enumString( gStrokeTypeStringTable , strokeType ) ;
-        int keyModifiers = CSendInput::getKeyboardState() ;
+        KeyboardState strokeKeyboardState = KeyboardState::getCurrKeyboardState() ;
 
         // log the raw event
         if ( isLoggingEnabled( "rawEvents" ) )
         {
-            string keyModifiersString ;
-            if ( keyModifiers != 0 )
-                keyModifiersString = MAKE_STRING( " " << ::keyModifiersString(keyModifiers) << " ;" ) ;
+            string strokeKeyboardStateString ;
+            if ( strokeKeyboardState.isAnythingDown() )
+                strokeKeyboardStateString = MAKE_STRING( " " << strokeKeyboardState << " ;" ) ;
             LOG_MSG(
-                strokeTypeString << ":" << keyModifiersString
+                strokeTypeString << ":" << strokeKeyboardStateString
                 << " hDevice=" << hDevice 
 			    << " ; state=0x" << hexString(pStroke->state)
 			    << " ; flags=0x" << hexString(pStroke->flags)
@@ -218,9 +218,9 @@ doRunMainLoop( int* pExitFlag )
             if ( detectMouseMove( pStrokeHistory , &eventType , &magnitude ) )
                 LOG_CMSG( "events" , strokeTypeString << ": " << eventType << "/" << magnitude )
             // check if this event has been configured
-            pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
+            pEvent = pAppProfile->findEvent( eventType , strokeKeyboardState ) ;
             if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
-                pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
+                pEvent = pDefaultAppProfile->findEvent( eventType , strokeKeyboardState ) ;
             // scale the movement (100 = 1 unit)
             pActionInfo = (void*) (100 * magnitude) ;
         }
@@ -232,9 +232,9 @@ doRunMainLoop( int* pExitFlag )
             LOG_CMSG( "events" , strokeTypeString << ": " << (dirn < 0?"down":"up") << "/" << wheelSize ) ;
             // check if this event has been configured
             Event::eEventType eventType = (dirn < 0) ? Event::etWheelDown : Event::etWheelUp ;
-            pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
+            pEvent = pAppProfile->findEvent( eventType , strokeKeyboardState ) ;
             if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
-                pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
+                pEvent = pDefaultAppProfile->findEvent( eventType , strokeKeyboardState ) ;
             // scale the movement (100 = 1 unit)
             pActionInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
         }
@@ -246,9 +246,9 @@ doRunMainLoop( int* pExitFlag )
             LOG_CMSG( "events" , strokeTypeString << ": " << (dirn < 0?"left":"right") << "/" << wheelSize ) ;
             // check if this event has been configured
             Event::eEventType eventType = (dirn < 0) ? Event::etWheelLeft : Event::etWheelRight ;
-            pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
+            pEvent = pAppProfile->findEvent( eventType , strokeKeyboardState ) ;
             if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
-                pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
+                pEvent = pDefaultAppProfile->findEvent( eventType , strokeKeyboardState ) ;
             // scale the movement (100 = 1 unit)
             pActionInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
         }
@@ -267,6 +267,8 @@ doRunMainLoop( int* pExitFlag )
         // handle the event
         if ( pEvent != NULL )
         {
+            // NOTE: I tried managing the keyboard state here, so that we don't keep sending up/down events for Ctrl/Alt/Shift
+            //  before/after every action, but it interferes with event detection, because the keyboard state is now wrong :-/
             CSendInput sendInput ;
             for ( ActionPtrVector::const_iterator it=pEvent->actions().begin() ; it != pEvent->actions().end() ; ++it )
             {

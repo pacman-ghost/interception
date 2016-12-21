@@ -1,6 +1,7 @@
 #ifndef ACTIONS_HPP
 #define ACTIONS_HPP
 
+#include "keyboardState.hpp"
 #include "utils.hpp"
 
 struct ApiAction ;
@@ -33,7 +34,7 @@ public:
 // access methods:
 public:
     int actionParam() const ;
-    int keyModifiers() const ;
+    const KeyboardState& keyboardState() const ;
     virtual std::string asString() const ;
 protected:
     virtual const char* pActionName() const = 0 ;
@@ -42,7 +43,7 @@ protected:
 // data members:
 private:
     int mActionParam ;
-    int mKeyModifiers ;
+    KeyboardState mKeyboardState ;
 
 } ;
 

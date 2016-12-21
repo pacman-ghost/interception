@@ -223,6 +223,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\keyboardState.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\sendInput.cpp"
 				>
 			</File>
@@ -266,6 +270,10 @@
 			</File>
 			<File
 				RelativePath=".\globals.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\keyboardState.hpp"
 				>
 			</File>
 			<File

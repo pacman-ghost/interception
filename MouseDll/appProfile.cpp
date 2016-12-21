@@ -53,14 +53,14 @@ AppProfile::AppProfile(
 // ---------------------------------------------------------------------
 
 const Event*
-AppProfile::findEvent( Event::eEventType eventType , int keyModifiers ) const
+AppProfile::findEvent( Event::eEventType eventType , const KeyboardState& keyboardState ) const
 {
     // find the specified event
     for ( EventPtrVector::const_iterator it=events().begin() ; it != events().end() ; ++it )
     {
         const Event* pEvent = *it ;
         // FIXME! if no key modifier events are configured, then ignore keyModifiers?
-        if  ( pEvent->eventType() == eventType && pEvent->keyModifiers() == keyModifiers )
+        if  ( pEvent->eventType() == eventType && pEvent->keyboardState() == keyboardState )
             return pEvent ;
     }
 

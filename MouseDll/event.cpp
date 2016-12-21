@@ -6,11 +6,9 @@ using namespace std ;
 // --- CONSTRUCTORS ----------------------------------------------------
 
 Event::Event( const ApiEvent* pEvent , const ApiAction* pActions , int nActions )
+    : mEventType( (eEventType)pEvent->mEventType )
+    , mKeyboardState( pEvent->mKeyModifiers )
 {
-    // initialize the Event
-    mEventType = (eEventType) pEvent->mEventType ;
-    mKeyModifiers = pEvent->mKeyModifiers ;
-
     // initialize the Event
     for ( int i=0 ; i < nActions ; ++i )
         mActions.push_back( Action::allocAction( pActions+i ) ) ;
@@ -19,7 +17,7 @@ Event::Event( const ApiEvent* pEvent , const ApiAction* pActions , int nActions 
 // ---------------------------------------------------------------------
 
 Event::eEventType Event::eventType() const { return mEventType ; }
-int Event::keyModifiers() const { return mKeyModifiers ; }
+const KeyboardState& Event::keyboardState() const { return mKeyboardState ; }
 const ActionPtrVector& Event::actions() const { return mActions ; }
 
 // ---------------------------------------------------------------------
@@ -40,8 +38,8 @@ operator<<( ostream& os , const Event& evt )
 {
     // insert the Event
     os << "{Event:" << evt.eventType() ;
-    if ( evt.keyModifiers() != 0 )
-        os << ":" << keyModifiersString(evt.keyModifiers()) ;
+    if ( evt.keyboardState().isAnythingDown() )
+        os << ":" << evt.keyboardState() ;
     os << "}" ;
     return os ;
 }

@@ -8,7 +8,7 @@ using namespace std ;
 
 Action::Action( const ApiAction* pAction )
     : mActionParam( pAction->mActionParam )
-    , mKeyModifiers( pAction->mKeyModifiers )
+    , mKeyboardState( pAction->mKeyModifiers )
 {
 }
 
@@ -53,8 +53,8 @@ Action::asString() const
     // return the Action as a string
     stringstream buf ;
     buf << "<" << pActionName() ;
-    if ( keyModifiers() != 0 )
-        buf << ":" << keyModifiersString(keyModifiers()) ;
+    if ( keyboardState().isAnythingDown() )
+        buf << ":" << keyboardState() ;
     if ( actionParam() != 0 )
         buf << ":" << actionParam() ;
     buf << ">" ;
@@ -63,7 +63,7 @@ Action::asString() const
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-int Action::keyModifiers() const { return mKeyModifiers ; }
+const KeyboardState& Action::keyboardState() const { return mKeyboardState ; }
 int Action::actionParam() const { return mActionParam ; }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -92,7 +92,7 @@ MouseLeftAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendMouseMoveInput( -scrollSize , 0 , keyModifiers() ) ;
+    pSendInput->sendMouseMoveInput( -scrollSize , 0 , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -115,7 +115,7 @@ MouseRightAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendMouseMoveInput( scrollSize , 0 , keyModifiers() ) ;
+    pSendInput->sendMouseMoveInput( scrollSize , 0 , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -138,7 +138,7 @@ MouseUpAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendMouseMoveInput( 0 , -scrollSize , keyModifiers() ) ;
+    pSendInput->sendMouseMoveInput( 0 , -scrollSize , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -161,7 +161,7 @@ MouseDownAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendMouseMoveInput( 0 , scrollSize , keyModifiers() ) ;
+    pSendInput->sendMouseMoveInput( 0 , scrollSize , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -184,7 +184,7 @@ WheelLeftAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendHorzWheelInput( -scrollSize , keyModifiers() ) ;
+    pSendInput->sendHorzWheelInput( -scrollSize , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -207,7 +207,7 @@ WheelRightAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendHorzWheelInput( scrollSize , keyModifiers() ) ;
+    pSendInput->sendHorzWheelInput( scrollSize , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -230,7 +230,7 @@ WheelUpAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendWheelInput( scrollSize , keyModifiers() ) ;
+    pSendInput->sendWheelInput( scrollSize , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -253,7 +253,7 @@ WheelDownAction::doAction( void* pInfo , CSendInput* pSendInput ) const
     int scrollSize = (int) pInfo ;
     scrollSize = WHEEL_DELTA * scrollSize / 100 ; // unscale the movement (100 = 1 unit)
     scrollSize = adjustForSpeed( scrollSize ) ;
-    pSendInput->sendWheelInput( -scrollSize , keyModifiers() ) ;
+    pSendInput->sendWheelInput( -scrollSize , keyboardState() ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -274,9 +274,9 @@ KeyPressAction::doAction( void* pInfo , CSendInput* pSendInput ) const
 {
     // send a "keypress" event
     int vKey = actionParam() ;
-// FIXME! this will save/restore the keyboard state twice!
-    pSendInput->sendKeyboardInput( vKey , true , keyModifiers() ) ;
-    pSendInput->sendKeyboardInput( vKey , false , keyModifiers() ) ;
+    KeyboardStateGuard keyboardStateGuard( *pSendInput , keyboardState() ) ;
+    pSendInput->sendKeyboardInput( vKey , true ) ;
+    pSendInput->sendKeyboardInput( vKey , false ) ;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

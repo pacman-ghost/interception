@@ -2,6 +2,7 @@
 #define EVENT_HPP
 
 #include "actions.hpp"
+#include "keyboardState.hpp"
 #include "utils.hpp"
 
 struct ApiEvent ;
@@ -26,7 +27,7 @@ public:
 // access methods:
 public:
     eEventType eventType() const ;
-    int keyModifiers() const ;
+    const KeyboardState& keyboardState() const ;
     const ActionPtrVector& actions() const ;
 public:
     void dumpEvent( std::ostream& os , const char* pPrefix="" ) const ;
@@ -34,7 +35,7 @@ public:
 // data members:
 private:
     eEventType mEventType ;
-    int mKeyModifiers ;
+    KeyboardState mKeyboardState ;
     ActionPtrVector mActions ;
 
 } ;

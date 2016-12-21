@@ -3,6 +3,7 @@
 
 #include <windows.h>
 
+#include "keyboardState.hpp"
 #include "utils.hpp"
 
 // ---------------------------------------------------------------------
@@ -18,17 +19,14 @@ public:
 
 // input methods:
 public:
-    void sendKeyboardInput( WORD keyCode , bool keyDown , int keyModifiers ) ;
-    void sendMouseMoveInput( int dx , int dy , int keyModifiers ) ;
-    void sendWheelInput( int scrollSize , int keyModifiers ) ;
-    void sendHorzWheelInput( int scrollSize , int keyModifiers ) ;
-protected:
-    void doSendInput( INPUT* pInputRec , int keyModifiers ) ;
-
-// miscellaneous methods:
+    void setKeyboardState( const KeyboardState& newKeyboardState , const KeyboardState& currKeyboardState ) ;
 public:
-    static void getKeyboardState( bool* pIsCtrlDown , bool* pIsAltDown , bool* pIsShiftDown ) ;
-    static int getKeyboardState() ;
+    void sendKeyboardInput( WORD keyCode , bool keyDown ) ;
+    void sendMouseMoveInput( int dx , int dy , const KeyboardState& keyboardState ) ;
+    void sendWheelInput( int scrollSize , const KeyboardState& keyboardState ) ;
+    void sendHorzWheelInput( int scrollSize , const KeyboardState& keyboardState ) ;
+protected:
+    void doSendInput( INPUT* pInputRec ) ;
 
 } ;
 

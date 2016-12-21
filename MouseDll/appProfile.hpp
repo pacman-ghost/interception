@@ -28,7 +28,7 @@ public:
     bool fallbackToDefaultAppProfile() const ;
     const EventPtrVector& events() const ;
 public:
-    const Event* findEvent( Event::eEventType eventType , int keyModifiers ) const ;
+    const Event* findEvent( Event::eEventType eventType , const KeyboardState& keyboardState ) const ;
 
 // miscellaneous methods:
 public:

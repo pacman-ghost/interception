@@ -20,9 +20,6 @@ typedef std::vector<wchar_t> WideCharVector ;
 typedef std::set<int> IntSet ;
 typedef std::set<std::string> StringSet ;
 
-enum eKeyModifiers { kmCtrl=0x0001 , kmAlt=0x0002 , kmShift=0x0004 } ;
-extern std::string keyModifiersString( int keyModifiers ) ;
-
 // ---------------------------------------------------------------------
 
 extern HMODULE ghInterceptionDll ;

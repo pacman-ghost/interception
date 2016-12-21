@@ -20,22 +20,6 @@ PCALLBACKFN gpCallbackFn = NULL ;
 
 // ---------------------------------------------------------------------
 
-string
-keyModifiersString( int keyModifiers )
-{
-    // return the KeyModifiers as a string
-    static BitFlagsInfo stringTable[] =
-    {
-        { kmCtrl , "Ctrl" } ,
-        { kmAlt , "Alt" } ,
-        { kmShift , "Shift" } ,
-        { -1 , NULL } ,
-    } ;
-    return bitFlagsString( stringTable , keyModifiers , '+' ) ;
-}
-
-// ---------------------------------------------------------------------
-
 ostream&
 operator<<( ostream& os , const exception& xcptn )
 {
