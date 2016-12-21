@@ -16,12 +16,6 @@ typedef map< InterceptionDevice , EventTypeSizetMap > EventCountTable ;
 
 // --- LOCAL DATA ------------------------------------------------------
 
-#define MAX_STROKE_HISTORY 20
-#define DEFAULT_STROKE_HISTORY_RESET_INTERVAL 100 // milliseconds
-
-#define DETECT_MOUSE_MOVE_WINDOW_SIZE 10
-#define DETECT_MOUSE_MOVE_HORZ_BIAS 1.2 // FIXME! s.b. configurable
-
 // local functions:
 static void doRunMainLoop( int* pExitFlag ) ;
 static bool detectMouseMove( const MouseStrokeHistory* pStrokeHistory , Event::eEventType* pEventType , int* pMagnitude ) ;
@@ -103,7 +97,7 @@ doRunMainLoop( int* pExitFlag )
     {
         // wait for the next event
         // NOTE: If the driver is not installed, this will return immediately :-/
-        InterceptionDevice hDevice = interception_wait_with_timeout( hContext , 200 ) ;
+        InterceptionDevice hDevice = interception_wait_with_timeout( hContext , gEventWaitTimeout ) ;
         if ( hDevice == NULL )
         {
             // check if we should exit
@@ -203,14 +197,14 @@ doRunMainLoop( int* pExitFlag )
             MouseStrokeHistory* pStrokeHistory = & mouseMovesHistoryTable[hDevice] ;
             int strokeHistoryResetInterval = pDeviceConfig->strokeHistoryResetInterval() ;
             if ( strokeHistoryResetInterval <= 0 )
-                strokeHistoryResetInterval = DEFAULT_STROKE_HISTORY_RESET_INTERVAL ;
+                strokeHistoryResetInterval = gDefaultStrokeResetHistoryInterval ;
             if ( ! pStrokeHistory->empty() && (int)(strokeTimestamp-pStrokeHistory->back().first) >= strokeHistoryResetInterval )
             {
                 // we haven't seen a move event for a while - reset the history
                 pStrokeHistory->clear() ;
             }
             pStrokeHistory->push_back( make_pair( strokeTimestamp , *pStroke ) ) ;
-            while ( pStrokeHistory->size() > MAX_STROKE_HISTORY )
+            while ( (int)pStrokeHistory->size() > gMaxStrokeHistory )
                 pStrokeHistory->pop_front() ;
             // figure out which way the mouse is moving
             Event::eEventType eventType ;
@@ -296,11 +290,11 @@ static bool
 detectMouseMove( const MouseStrokeHistory* pStrokeHistory , Event::eEventType* pEventType , int* pMagnitude )
 {
     // check if we have enough stroke history
-    if ( pStrokeHistory->size() < DETECT_MOUSE_MOVE_WINDOW_SIZE )
+    if ( (int)pStrokeHistory->size() < gDetectMouseMove_WindowSize )
         return false ;
 
     // figure out which direction the mouse is moving in
-    LOG_CMSG( "detectMouseMove" , "DETECT MOUSE MOVE: #=" << DETECT_MOUSE_MOVE_WINDOW_SIZE << "/" << pStrokeHistory->size() ) ;
+    LOG_CMSG( "detectMouseMove" , "DETECT MOUSE MOVE: #=" << gDetectMouseMove_WindowSize << "/" << pStrokeHistory->size() ) ;
     int cumX=0 , cumY=0 , nStrokes=0 ;
     const InterceptionMouseStroke* pPrevStroke = NULL ;
     for ( MouseStrokeHistory::const_reverse_iterator it=pStrokeHistory->rbegin() ; it != pStrokeHistory->rend() ; ++it )
@@ -332,11 +326,11 @@ detectMouseMove( const MouseStrokeHistory* pStrokeHistory , Event::eEventType* p
             cumY += stroke.y ;
             LOG_CMSG( "detectMouseMove" , "  x=" << stroke.x << " ; y=" << stroke.y << " ; cum=" << cumX << "/" << cumY ) ;
         }
-        if ( ++nStrokes >= DETECT_MOUSE_MOVE_WINDOW_SIZE )
+        if ( ++nStrokes >= gDetectMouseMove_WindowSize )
             break ;
     }
     // NOTE: It's easier to move a device up/down without drifting left/right, so we bias left/right detection.
-    int biasedCumX = (int)(1000*cumX * DETECT_MOUSE_MOVE_HORZ_BIAS) / 1000 ;
+    int biasedCumX = (int)(1000*cumX * gDetectMouseMove_HorzBias/100) / 1000 ;
     if ( abs(biasedCumX) >= abs(cumY) )
     {
         *pEventType = biasedCumX < 0 ? Event::etMouseLeft : Event::etMouseRight;

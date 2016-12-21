@@ -8,6 +8,14 @@
 
 using namespace std ;
 
+// --- GLOBAL DATA -----------------------------------------------------
+
+int gEventWaitTimeout = 200 ; // nb: milliseconds
+int gMaxStrokeHistory = 20 ;
+int gDefaultStrokeResetHistoryInterval = 100 ; // nb: milliseconds
+int gDetectMouseMove_WindowSize = 10 ;
+int gDetectMouseMove_HorzBias = 120 ; // nb: scaled by 100
+
 // --- LOCAL DATA ------------------------------------------------------
 
 ostream* gpLogStream = NULL ;
@@ -52,6 +60,19 @@ loadDebugConfig( const wchar_t* pDebugConfigFilename )
         }
         gLogFilename = pLogFilename ;
     }
+
+    // load the debug settings
+    LOG_CMSG( "config" , "Debug settings (" << toUtf8(pDebugConfigFilename) << "):" ) ;
+    gEventWaitTimeout = GetPrivateProfileInt( L"Debug" , L"EventWaitTimeout" , gEventWaitTimeout , pDebugConfigFilename ) ;
+    LOG_CMSG( "config" , "- EventWaitTimeout = " << gEventWaitTimeout ) ;
+    gMaxStrokeHistory = GetPrivateProfileInt( L"Debug" , L"MaxStrokeHistory" , gMaxStrokeHistory , pDebugConfigFilename ) ;
+    LOG_CMSG( "config" , "- MaxStrokeHistory = " << gMaxStrokeHistory ) ;
+    gDefaultStrokeResetHistoryInterval = GetPrivateProfileInt( L"Debug" , L"DefaultStrokeResetHistoryInterval" , gDefaultStrokeResetHistoryInterval , pDebugConfigFilename ) ;
+    LOG_CMSG( "config" , "- DefaultStrokeResetHistory = " << gDefaultStrokeResetHistoryInterval ) ;
+    gDetectMouseMove_WindowSize = GetPrivateProfileInt( L"Debug" , L"DetectMouseMove_WindowSize" , gDetectMouseMove_WindowSize , pDebugConfigFilename ) ;
+    LOG_CMSG( "config" , "- DetectMouseMove_WindowSize = " << gDetectMouseMove_WindowSize ) ;
+    gDetectMouseMove_HorzBias = GetPrivateProfileInt( L"Debug" , L"DetectMouseMove_HorzBias" , gDetectMouseMove_HorzBias , pDebugConfigFilename ) ;
+    LOG_CMSG( "config" , "- DetectMouseMove_HorzBias = " << (float)gDetectMouseMove_HorzBias/100 ) ;
 }
 
 // ---------------------------------------------------------------------

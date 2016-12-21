@@ -5,6 +5,12 @@
 
 // ---------------------------------------------------------------------
 
+extern int gEventWaitTimeout ;
+extern int gMaxStrokeHistory ;
+extern int gDefaultStrokeResetHistoryInterval ;
+extern int gDetectMouseMove_WindowSize ;
+extern int gDetectMouseMove_HorzBias ;
+
 extern void loadDebugConfig( const wchar_t* pDebugConfigFilename ) ;
 
 // ---------------------------------------------------------------------
