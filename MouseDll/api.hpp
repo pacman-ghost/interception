@@ -40,6 +40,7 @@ struct ApiAppProfile
     const wchar_t* mpApp ;
     int mSensitivityX ;
     int mSensitivityY ;
+    bool mFallbackToDefaultAppProfile ;
     int mEventStartIndex ;
     int mEventCount ;
 } ;

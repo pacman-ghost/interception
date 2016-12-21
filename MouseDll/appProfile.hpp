@@ -25,6 +25,7 @@ public:
     int sensitivity( Event::eEventType eventType ) const ;
     int sensitivityX() const ;
     int sensitivityY() const ;
+    bool fallbackToDefaultAppProfile() const ;
     const EventPtrVector& events() const ;
 public:
     const Event* findEvent( Event::eEventType eventType , int keyModifiers ) const ;
@@ -38,6 +39,7 @@ private:
     std::string mApp ;
     int mSensitivityX ;
     int mSensitivityY ;
+    bool mFallbackToDefaultAppProfile ;
     EventPtrVector mEvents ;
 } ;
 

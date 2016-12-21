@@ -60,6 +60,7 @@ namespace MouseInterception
             public string mApp ;
             public int mSensitivityX ;
             public int mSensitivityY ;
+            public bool mFallbackToDefaultAppProfile ;
             public int mEventStartIndex ;
             public int mEventCount ;
         }
@@ -170,6 +171,7 @@ namespace MouseInterception
                         appProfile.mSensitivityX = Utils.getXmlAttr( xn , "x" , 0 ) ;
                         appProfile.mSensitivityY = Utils.getXmlAttr( xn , "y" , 0 ) ;
                     }
+                    appProfile.mFallbackToDefaultAppProfile = Utils.getXmlChildVal( appProfileXmlNode , "fallbackToDefaultAppProfile" , false ) ;
                     appProfile.mEventStartIndex = events.Count ;
                     appProfile.mEventCount = 0 ;
                     // parse the events

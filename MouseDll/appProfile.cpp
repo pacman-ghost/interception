@@ -15,6 +15,7 @@ AppProfile::AppProfile(
     mApp = toUtf8( pAppProfile->mpApp ) ;
     mSensitivityX = pAppProfile->mSensitivityX ;
     mSensitivityY = pAppProfile->mSensitivityY ;
+    mFallbackToDefaultAppProfile = pAppProfile->mFallbackToDefaultAppProfile ;
 
     // initialize the Device
     for ( int i=0 ; i < nEvents ; ++i )
@@ -100,6 +101,7 @@ AppProfile::sensitivity( Event::eEventType eventType ) const
 const string& AppProfile::app() const { return mApp ; }
 int AppProfile::sensitivityX() const { return mSensitivityX ; }
 int AppProfile::sensitivityY() const { return mSensitivityY ; }
+bool AppProfile::fallbackToDefaultAppProfile() const { return mFallbackToDefaultAppProfile ; }
 const EventPtrVector& AppProfile::events() const { return mEvents ; }
 
 // ---------------------------------------------------------------------
@@ -111,7 +113,8 @@ AppProfile::dumpAppProfile( ostream& os , const char* pPrefix ) const
     if ( pPrefix == NULL )
         pPrefix = "" ;
     os << pPrefix << "AppProfile: \"" << app() << "\"" << endl ;
-    os << "  sensitivity: x=" << sensitivityX() << " ; y=" << sensitivityY() << endl ;
+    os << pPrefix << "  sensitivity: x=" << sensitivityX() << " ; y=" << sensitivityY() << endl ;
+    os << pPrefix << "  fallbackToDefaultAppProfile = " << fallbackToDefaultAppProfile() << endl ;
     for ( EventPtrVector::const_iterator it=events().begin() ; it != events().end() ; ++it )
         (*it)->dumpEvent( os , MAKE_CSTRING(pPrefix << "   ") ) ;
 }

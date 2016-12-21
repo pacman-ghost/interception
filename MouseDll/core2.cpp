@@ -219,7 +219,7 @@ doRunMainLoop( int* pExitFlag )
                 LOG_CMSG( "events" , strokeTypeString << ": " << eventType << "/" << magnitude )
             // check if this event has been configured
             pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
-            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
+            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
                 pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
             // scale the movement (100 = 1 unit)
             pActionInfo = (void*) (100 * magnitude) ;
@@ -233,7 +233,7 @@ doRunMainLoop( int* pExitFlag )
             // check if this event has been configured
             Event::eEventType eventType = (dirn < 0) ? Event::etWheelDown : Event::etWheelUp ;
             pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
-            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
+            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
                 pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
             // scale the movement (100 = 1 unit)
             pActionInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
@@ -247,7 +247,7 @@ doRunMainLoop( int* pExitFlag )
             // check if this event has been configured
             Event::eEventType eventType = (dirn < 0) ? Event::etWheelLeft : Event::etWheelRight ;
             pEvent = pAppProfile->findEvent( eventType , keyModifiers ) ;
-            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile )
+            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
                 pEvent = pDefaultAppProfile->findEvent( eventType , keyModifiers ) ;
             // scale the movement (100 = 1 unit)
             pActionInfo = (void*) (100 * wheelSize / (WHEEL_DELTA/10)) ; // FIXME! scaling s.b. configurable
