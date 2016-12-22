@@ -194,7 +194,7 @@ doRunMainLoop( int* pExitFlag )
         if ( strokeType == stMouseMove )
         {
             // record the stroke
-            MouseStrokeHistory* pStrokeHistory = & mouseMovesHistoryTable[hDevice] ;
+            MouseStrokeHistory* pStrokeHistory = & mouseMovesHistoryTable[ hDevice ] ;
             int strokeHistoryResetInterval = pDeviceConfig->strokeHistoryResetInterval() ;
             if ( strokeHistoryResetInterval <= 0 )
                 strokeHistoryResetInterval = gDefaultStrokeResetHistoryInterval ;
@@ -210,13 +210,15 @@ doRunMainLoop( int* pExitFlag )
             Event::eEventType eventType ;
             int magnitude ;
             if ( detectMouseMove( pStrokeHistory , &eventType , &magnitude ) )
+            {
                 LOG_CMSG( "events" , strokeTypeString << ": " << eventType << "/" << magnitude )
-            // check if this event has been configured
-            pEvent = pAppProfile->findEvent( eventType , strokeKeyboardState ) ;
-            if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
-                pEvent = pDefaultAppProfile->findEvent( eventType , strokeKeyboardState ) ;
-            // scale the movement (100 = 1 unit)
-            pActionInfo = (void*) (100 * magnitude) ;
+                // check if this event has been configured
+                pEvent = pAppProfile->findEvent( eventType , strokeKeyboardState ) ;
+                if ( pEvent == NULL && pAppProfile != pDefaultAppProfile && pAppProfile->fallbackToDefaultAppProfile() )
+                    pEvent = pDefaultAppProfile->findEvent( eventType , strokeKeyboardState ) ;
+                // scale the movement (100 = 1 unit)
+                pActionInfo = (void*) (100 * magnitude) ;
+            }
         }
         else if ( strokeType == stMouseWheel )
         {
