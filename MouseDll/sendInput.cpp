@@ -37,6 +37,12 @@ CSendInput::setKeyboardState( const KeyboardState& newKeyboardState , const Keyb
         sendKeyboardInput( VK_SHIFT , true ) ;
     else if ( !newKeyboardState.isShiftDown() && currKeyboardState.isShiftDown() )
         sendKeyboardInput( VK_SHIFT , false ) ;
+
+    // set the new keyboard state
+    if ( newKeyboardState.isCapsLockDown() && !currKeyboardState.isCapsLockDown() )
+        sendKeyboardInput( VK_CAPITAL , true ) ;
+    else if ( !newKeyboardState.isCapsLockDown() && currKeyboardState.isCapsLockDown() )
+        sendKeyboardInput( VK_CAPITAL , false ) ;
 }
 
 // ---------------------------------------------------------------------

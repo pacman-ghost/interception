@@ -25,6 +25,8 @@ KeyboardState::getCurrKeyboardState()
         flags |= kmAlt ;
     if ( GetAsyncKeyState( VK_SHIFT ) < 0 )
         flags |= kmShift ;
+    if ( GetAsyncKeyState( VK_CAPITAL ) < 0 )
+        flags |= kmCapsLock ;
     return KeyboardState( flags ) ;
 }
 
@@ -39,6 +41,7 @@ KeyboardState::asString() const
         { KeyboardState::kmCtrl , "Ctrl" } ,
         { KeyboardState::kmAlt , "Alt" } ,
         { KeyboardState::kmShift , "Shift" } ,
+        { KeyboardState::kmCapsLock , "CapsLock" } ,
         { -1 , NULL } ,
     } ;
     return MAKE_STRING( bitFlagsString( stringTable , mFlags , '+' ) ) ;
@@ -49,6 +52,7 @@ KeyboardState::asString() const
 bool KeyboardState::isCtrlDown() const { return (mFlags & kmCtrl) != 0 ; }
 bool KeyboardState::isAltDown() const { return (mFlags & kmAlt) != 0 ; }
 bool KeyboardState::isShiftDown() const { return (mFlags & kmShift) != 0 ; }
+bool KeyboardState::isCapsLockDown() const { return (mFlags & kmCapsLock) != 0 ; }
 bool KeyboardState::isAnythingDown() const { return (mFlags != 0) ; }
 
 bool KeyboardState::operator==( const KeyboardState& rhs ) const { return mFlags == rhs.mFlags ; }

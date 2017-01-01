@@ -18,7 +18,7 @@ namespace MouseInterception
         // alignment issues. It's safer to send through a separate array for each type of struct, and then
         // elements specify which ones they want via a start index and item count. Sigh...
 
-        public enum KeyModifiers { ctrl=0x0001 , alt=0x0002 , shift=0x0004 }
+        public enum KeyModifiers { ctrl=0x0001 , alt=0x0002 , shift=0x0004 , caps=0x0008 }
 
         // --- SETTINGS: application settings ---
         [StructLayout( LayoutKind.Sequential , CharSet=CharSet.Unicode , Pack=1 )]

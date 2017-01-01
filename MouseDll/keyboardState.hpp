@@ -13,7 +13,7 @@ class KeyboardState
 
 // data types:
 public:
-    enum eKeyModifiers { kmCtrl=0x0001 , kmAlt=0x0002 , kmShift=0x0004 } ;
+    enum eKeyModifiers { kmCtrl=0x0001 , kmAlt=0x0002 , kmShift=0x0004 , kmCapsLock=0x0008 } ;
 
 // constructors/destructor:
 public:
@@ -24,6 +24,7 @@ public:
     bool isCtrlDown() const ;
     bool isAltDown() const ;
     bool isShiftDown() const ;
+    bool isCapsLockDown() const ;
     bool isAnythingDown() const ;
     std::string asString() const ;
 
