@@ -1,4 +1,23 @@
-﻿using System ;
+﻿/*
+ * Copyright 2017 Taka Muraoka
+ *
+ * This file is part of the MouseInterception project.
+ *
+ * The MouseInterception project is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * The MouseInterception project is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * the MouseInterception project.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System ;
 using System.IO ;
 using System.Runtime.InteropServices ;
 using System.Windows.Forms ;
@@ -10,7 +29,7 @@ namespace MouseInterception
     static class Program
     {
 
-        public const string APP_NAME = "udMeeces" ;
+        public const string APP_NAME = "udMeeces" ; // because a trackball is an upside-down mouse
 
         private static string mBaseDir ;
         private static AppConfig mAppConfig = null ;

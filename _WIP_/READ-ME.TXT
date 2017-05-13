@@ -1,0 +1,20 @@
+This project is still a WIP, so the installation process and usage is a bit messy.
+
+(*) Install the mouse driver (see $/_ARCHIVE_/removal/).
+
+(*) Build the solution and grab MouseInterception.exe and mouse.dll.
+    You will also need interception.dll.
+    
+(*) Set up a config.xml and configure it (examples are in this directory).
+    You need to know the device number and HID for each mouse/trackball you want to configure. The easiest way to get these is to run MouseInterception.exe from the console, and then move the device - MouseInterception.exe will then log the details you need.
+
+(*) If you have trouble getting things to work, create a DEBUG.INI file that looks something like this:
+        [Logging]
+        ;LogFilename = r:\MouseInterception.log
+        system = 1
+        config = 1
+        ;events = 1
+        ;actions = 1
+        ;rawEvents = 1
+        ;detectMouseMove = 1
+        ;sendInput = 1

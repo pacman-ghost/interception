@@ -1,4 +1,23 @@
-﻿using System ;
+﻿/*
+ * Copyright 2017 Taka Muraoka
+ *
+ * This file is part of the MouseInterception project.
+ *
+ * The MouseInterception project is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * The MouseInterception project is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * the MouseInterception project.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System ;
 using System.IO ;
 using System.Xml ;
 using System.Runtime.InteropServices ;
@@ -16,7 +35,7 @@ namespace MouseInterception
         // defining C-struct's was impossible (one level of nesting was OK, but no deeper). We could have maybe
         // done some trickery by manipulating pointers and using sizeof(), but it's risky since there are
         // alignment issues. It's safer to send through a separate array for each type of struct, and then
-        // elements specify which ones they want via a start index and item count. Sigh...
+        // a start index & item count specifying which ones are required. Sigh...
 
         public enum KeyModifiers { ctrl=0x0001 , alt=0x0002 , shift=0x0004 , caps=0x0008 }
 

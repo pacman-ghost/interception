@@ -1,3 +1,22 @@
+/*
+ * Copyright 2017 Taka Muraoka
+ *
+ * This file is part of the MouseInterception project.
+ *
+ * The MouseInterception project is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * The MouseInterception project is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * the MouseInterception project.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "sendInput.hpp"
 #include "globals.hpp"
 
@@ -20,6 +39,9 @@ CSendInput::~CSendInput()
 void
 CSendInput::setKeyboardState( const KeyboardState& newKeyboardState , const KeyboardState& currKeyboardState )
 {
+    // NOTE: Applications sometimes get confused when we send a key-down message and that key is already down,
+    //  so we have to check that we only send messages when they are required.
+
     // set the new keyboard state
     if ( newKeyboardState.isCtrlDown() && !currKeyboardState.isCtrlDown() )
         sendKeyboardInput( VK_CONTROL , true ) ;

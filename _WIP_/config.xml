@@ -1,0 +1,40 @@
+<config>
+
+<device id="1">
+    <hid> HID\VID_045E&amp;PID_07B2&amp;REV_0704&amp;MI_01&amp;Col01 </hid>
+    <deviceNumber> 16 </deviceNumber>
+    <displayName> Microsoft 4000 </displayName>
+    <enabled> true </enabled>
+</device>
+
+<deviceConfig id="1">
+<appProfile app=""> <!-- nb: this is the default AppProfile -->
+    <!-- document panning -->
+    <event type="mouseLeft" keyModifiers="alt">
+        <action type="wheelLeft" keyModifiers="alt" />
+    </event>
+    <event type="mouseRight" keyModifiers="alt">
+        <action type="wheelRight" keyModifiers="alt" />
+    </event>
+    <event type="mouseDown" keyModifiers="alt">
+        <action type="wheelDown" keyModifiers="alt" />
+    </event>
+    <event type="mouseUp" keyModifiers="alt">
+        <action type="wheelUp" keyModifiers="alt" />
+    </event>
+</appProfile>
+
+<appProfile app="notepad.exe"> <!-- custom configuration for notepad.exe -->
+    <fallbackToDefaultAppProfile> false </fallbackToDefaultAppProfile>
+	<!-- document top/bottom -->
+    <event type="mouseUp" keyModifiers="alt+ctrl">
+        <action type="keyPress" vKey="36" keyModifiers="ctrl" />
+    </event>
+    <event type="mouseDown" keyModifiers="alt+ctrl">
+        <action type="keyPress" vKey="35" keyModifiers="ctrl" />
+    </event>
+</appProfile>
+
+</deviceConfig>
+
+</config>

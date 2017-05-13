@@ -1,3 +1,22 @@
+/*
+ * Copyright 2017 Taka Muraoka
+ *
+ * This file is part of the MouseInterception project.
+ *
+ * The MouseInterception project is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * The MouseInterception project is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * the MouseInterception project.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <windows.h>
 #include <psapi.h>
 #include <deque>
@@ -360,7 +379,9 @@ findDevice( InterceptionDevice hDevice , const Device** ppDevice , const DeviceC
     for( DeviceTable::const_iterator it=gDeviceTable.begin() ; it != gDeviceTable.end() ; ++it )
     {
         const Device* pDevice = (*it).second ;
-        // FIXME! have to check HID as well
+        // FIXME! Windows seems to occasionally assign new device numbers at boot time, so this check won't work properly
+        //  if that happens :-/ We should also check the HID (and maybe display name as well), since it's unlikely someone
+        //  will have multiple identical meeces connected at the same time.
         if ( pDevice->deviceNumber() == hDevice )
         {
             // found it - found the corresponding DeviceConfig
