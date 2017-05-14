@@ -6,3 +6,6 @@ It seems that what is required is:
     A "mouse" sub-key - see "mouse driver key.reg" (but we don't need the Enum section, it seems to get generated automatically).
 - In HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class\{4d36e96f-e325-11ce-bfc1-08002be10318}:
     Add "mouse\0" to the start of UpperFilters.
+This has been distilled into the mouse.reg and mouse-filter.reg files in this directory.
+
+A reboot is required.
